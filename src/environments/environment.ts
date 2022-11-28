@@ -1,13 +1,13 @@
 export const environment = {
-  production: false,
+  production: true,
   firebaseConfig : {
-    apiKey: "AIzaSyDAapxSQNaLp85au8sua0W5FNbt6kJHVAA",
-    authDomain: "ecws-test.firebaseapp.com",
-    projectId: "ecws-test",
-    storageBucket: "ecws-test.appspot.com",
-    messagingSenderId: "975148530134",
-    appId: "1:975148530134:web:f5aa6a35e1a59e86148c77",
-    databaseURL: "https://ecws-test-default-rtdb.europe-west1.firebasedatabase.app"
+    apiKey: "AIzaSyBjP_PL_pnasDbgkrvB2NiYJ9XKiHSxKCE",
+    authDomain: "ecws-33bca.firebaseapp.com",
+    databaseURL: "https://ecws-33bca-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "ecws-33bca",
+    storageBucket: "ecws-33bca.appspot.com",
+    messagingSenderId: "678304363263",
+    appId: "1:678304363263:web:3df2bea1a4c9c6ecfe12ca"
   },
-  apiURL: "http://127.0.0.1:8000/"
+  apiURL: "https://ecwrks.pythonanywhere.com/"
 };
