@@ -1,0 +1,38 @@
+.widget {
+    box-sizing: border-box;
+    padding: .5rem;
+    border-radius: 6px;
+    background-color: var(--background-color-2);
+    width: 100%;
+    &__text {
+        white-space: pre-wrap;
+    }
+    &__actions {
+        display: flex;
+        width: 100%;
+        justify-content: right;
+        margin-top: -.7rem;
+        button {
+            transform: scale(.8);
+        }
+    }
+    &__published {
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+        padding: 0 .7rem;
+        background-color: var(--background-color-3);
+        margin-right: .5rem;
+        border-radius: 100vmax;
+        user-select: none;
+        font-weight: bold;
+    }
+    mat-form-field {
+        width: 100%;
+        textarea {
+            height: 10rem;
+            line-height: 1.6;
+            resize: none;
+        }
+    }
+}

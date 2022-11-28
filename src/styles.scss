@@ -1,0 +1,92 @@
+@use "@angular/material" as mat;
+@include mat.all-legacy-component-typographies();
+@include mat.core();
+
+$ecws-primary: mat.define-palette(mat.$indigo-palette);
+$ecws-accent: mat.define-palette(mat.$teal-palette);
+
+$light-theme: mat.define-light-theme(
+  (
+    color: (
+      primary: $ecws-primary,
+      accent: $ecws-accent,
+    ),
+  )
+);
+
+$dark-theme: mat.define-dark-theme(
+  (
+    color: (
+      primary: $ecws-primary,
+      accent: $ecws-accent,
+    ),
+  )
+);
+
+:root {
+  --background-color-1: #eee;
+  --background-color-2: #fff;
+  --background-color-3: #eceff1;
+  --placeholder-color: #90a4ae;
+  --placeholder-border-color: #ccc;
+  --primary-color: #1976d2;
+  --accent-color: #009688;
+  --text-color: #212121;
+  --red-color: #f44336;
+  --loading-color: hsl(0, 0%, 80%);
+  --select-text-color: hsl(210, 79%, 36%);
+  --select-background-color: hsl(210, 79%, 76%);
+}
+
+.dark-theme {
+  @include mat.all-legacy-component-colors($dark-theme);
+  color: #fff;
+  --background-color-1: #263238;
+  --background-color-2: #37474f;
+  --background-color-3: #546e7a;
+  --placeholder-color: #263238;
+  --placeholder-border-color: #ccc;
+  --text-color: #fff;
+  --loading-color: hsl(200, 9%, 60%);
+}
+
+@include mat.all-legacy-component-colors($light-theme);
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: var(--background-color-1);
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar {
+  width: 20px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #d6dee1;
+  border-radius: 20px;
+  border: 6px solid transparent;
+  background-clip: content-box;
+  min-height: 100px;
+  &:hover {
+      opacity: 100%;
+      background-color: #bcc4c4;
+  }
+  &:active {
+      background-color: #a7a8a8;
+  }
+}
+
+mat-snack-bar-container {
+  background-color: var(--background-color-2);
+  color: var(--text-color);
+  border-radius: 6px;
+}

@@ -1,0 +1,23 @@
+:host {
+    display: flex;
+    gap: .5rem;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+mat-form-field {
+    width: 100%;
+    textarea {
+        line-height: 1.6;
+        width: 100%;
+        resize: none;
+        height: 70vh;
+    }
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    width: max-content;
+}

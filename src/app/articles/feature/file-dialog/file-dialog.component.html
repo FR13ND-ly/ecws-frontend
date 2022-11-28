@@ -1,0 +1,10 @@
+<div class="container" *ngIf="files$ | async as files">
+    <div class="actions">
+        <input (change)="onUploadFile($event)" type="file" style="display: none;" #fileInput>
+        <button (click)="fileInput.click()" mat-mini-fab color="accent"><mat-icon>upload</mat-icon></button>
+        <button [mat-dialog-close]="files[selected]?.imageUrl" mat-mini-fab color="primary" *ngIf="selected != undefined"><mat-icon>done</mat-icon></button>
+    </div>
+    <div class="files">
+        <img class="file" [class.file--selected]="i == selected" (click)="selected = i" [src]="file.pdf ? pdfImageUrl : file.imageUrl" *ngFor="let file of files; let i = index">
+    </div>
+</div>

@@ -1,0 +1,10 @@
+<div class="lists" *ngIf="articles$ | async as articles" cdkDropListGroup>
+    <app-list name="Disponibile" col="1" [articles]="articles[0]"></app-list>
+    <app-list name="Aranjate" col="2" [articles]="articles[1]"></app-list>
+    <app-list name="Publicate" col="3" [articles]="articles[2]"></app-list>
+    <app-list name="Ciorne" col="4" [articles]="articles[3]"></app-list>
+</div>
+<div class="actions">
+    <button (click)="nextEdition()" mat-mini-fab color="primary"><mat-icon>published_with_changes</mat-icon></button>
+    <button (click)="onOpenSearchDialog()" mat-mini-fab color="accent"><mat-icon>search</mat-icon></button>
+</div>

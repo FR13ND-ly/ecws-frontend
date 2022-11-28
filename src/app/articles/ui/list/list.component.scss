@@ -1,0 +1,19 @@
+.list {
+    border-radius: 6px;
+    padding: .9rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-color-2);
+    height: 532.5px;
+    &__title {
+        margin-bottom: 5px;
+        line-height: normal;
+        font-size: 1.3rem;
+        font-weight: 500;
+    }
+    &__button {
+        margin-top: .5rem;
+        background-color: var(--primary-color);
+    }
+}

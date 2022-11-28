@@ -1,0 +1,33 @@
+<form class="article" (submit)="onSubmit()" [formGroup]="articleForm" >
+    <mat-form-field appearance="fill">
+        <mat-label>Titlu</mat-label>
+        <input matInput required formControlName="title">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+        <mat-label>Text</mat-label>
+        <textarea class="article__text" #articleText matInput placeholder="Placeholder" cdkTextareaAutosize rows="5" required formControlName="text"></textarea>
+        <mat-hint align="end"><b>{{articleText.value.length}}</b> {{ articleText.value.length == 1 ? 'simbol' : 'simboluri'}}</mat-hint>
+    </mat-form-field>
+    <h3>Pagina:</h3>
+    <mat-slider min="1" max="8" step="1" value="1" thumbLabel  formControlName="page"></mat-slider>
+    <mat-form-field appearance="outline">
+        <textarea class="article__details" matInput placeholder="Detalii" cdkTextareaAutosize rows="3" formControlName="details"></textarea>
+    </mat-form-field>
+    <div class="article__files">
+        <div class="file" *ngFor='let file of data.files; let i = index'>
+            <div class="file__buttons-wrapper">
+                <button (click)="removeFile(i)" mat-icon-button color="warn" type="button"><mat-icon>delete</mat-icon></button>
+            </div>
+            <img [src]="file" class="file__image">
+        </div>
+        <div class="article__files-add-btn" (click)="onAddFile()"><mat-icon>add_photo_alternate</mat-icon></div>
+    </div>
+    <div class="article__actions">
+        <div class="article__positive-actions">
+            <button mat-raised-button color="primary" *ngIf="data.new">Salveză</button>
+            <button mat-raised-button color="primary" *ngIf="!data.new">Actualizează</button>
+            <button mat-raised-button color="accent" type="button" (click)="onResolve()" *ngIf="!data.new && data.col == 1">Aranjat</button>
+        </div>
+        <button mat-raised-button (click)="onRemoveArticle()" color="warn" *ngIf="!data.new">Șterge</button>
+    </div>
+</form>

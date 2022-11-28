@@ -1,0 +1,22 @@
+:host {
+    display: flex;
+    gap: .5rem;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    width: max-content;
+}
+
+.lists {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    
+    gap: 1rem;
+    align-items: flex-start;
+}

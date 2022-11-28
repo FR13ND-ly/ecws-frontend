@@ -1,0 +1,24 @@
+<header class="header mat-elevation-z2">
+    <h2 class="header__title">Est-Curier Workspace</h2>
+    <button class="header__change-theme-button" mat-icon-button (click)="onChangeTheme()"><mat-icon>brightness_4</mat-icon></button>
+    <mat-progress-bar class="header__loader" mode="indeterminate" *ngIf="loading$ | async"></mat-progress-bar>
+</header>
+<main>
+    <mat-tab-group (selectedIndexChange)="changeMenu($event)" [selectedIndex]="selectedIndex">
+        <mat-tab label="Articole">
+            <app-articles></app-articles>
+        </mat-tab>
+        <mat-tab label="Pagini">
+            <app-pages></app-pages>
+        </mat-tab>
+        <mat-tab label="Fișiere">
+            <app-files></app-files>
+        </mat-tab>
+        <mat-tab label="Avize">
+            <app-widgets></app-widgets>
+        </mat-tab>
+        <mat-tab label="Horoscop">
+            <app-horoscope></app-horoscope>
+        </mat-tab>
+    </mat-tab-group>
+</main>

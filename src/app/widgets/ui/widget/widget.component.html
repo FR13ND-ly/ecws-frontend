@@ -1,0 +1,14 @@
+<div class="widget mat-elevation-z2" [class.widget--resolved]="widget.resolved">
+    <mat-form-field appearance="outline" *ngIf="editable">
+        <mat-label>Aviz</mat-label>
+        <textarea matInput  [(ngModel)]="widget.text"></textarea>
+    </mat-form-field>
+    <p class="widget__text" *ngIf="!editable" [innerHTML]="widget.text">{{ widget.text }}</p>
+    <div class="widget__actions">
+        <div class="widget__published mat-elevation-z2" *ngIf="widget.resolved">Aranjat</div>
+        <button (click)="onDelete()" mat-mini-fab type="submit" color="warn"><mat-icon>delete</mat-icon></button>
+        <button (click)="editable = !editable" mat-mini-fab type="submit" color="primary" *ngIf="!editable"><mat-icon>edit</mat-icon></button>
+        <button (click)="onChange()" mat-mini-fab type="submit" color="primary" *ngIf="editable"><mat-icon>done</mat-icon></button>
+        <button (click)="onCopy()" mat-mini-fab type="submit"><mat-icon>content_copy</mat-icon></button>
+    </div>
+</div>

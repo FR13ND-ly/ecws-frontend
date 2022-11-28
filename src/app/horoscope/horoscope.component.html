@@ -1,0 +1,10 @@
+<ng-container *ngIf="horoscope$ | async as horoscope">
+    <mat-form-field appearance="outline">
+        <mat-label>Horoscop</mat-label>
+        <textarea matInput (input)="onChangeHoroscope(horoscope, text.value)" [value]="horoscope.text" name="text" #text></textarea>
+    </mat-form-field>
+    <div class="actions">
+        <button (click)="onResolve(horoscope)" mat-mini-fab color="primary"><mat-icon>{{ horoscope.published ? 'check_circle' : 'unpublished' }}</mat-icon></button>
+        <button (click)="onCopy(horoscope.text)" mat-mini-fab><mat-icon>content_copy</mat-icon></button>
+    </div>
+</ng-container>

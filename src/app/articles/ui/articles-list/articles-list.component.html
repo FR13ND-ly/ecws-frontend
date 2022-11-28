@@ -1,0 +1,12 @@
+
+<article cdkDrag class="article mat-elevation-z2" (click)="openEditor(article)" *ngFor="let article of articles">
+    <h6 class="article__date">{{ article.date }}</h6>
+    <span class="article__title"><b class="article__page">pag.{{ article.page }}</b> {{ article.title }}</span>
+    <div class="article__details">
+        <span class="article__text-info"><mat-icon>emoji_symbols</mat-icon> {{article.text.length}}</span>
+        <span class="article__images-info" *ngIf="article.files.length"><mat-icon>collections</mat-icon> {{article.files!.length}}</span>
+    </div>
+</article>
+<article class="article article--empty" *ngIf="!articles.length">
+    <b>Lista e goală</b>
+</article>

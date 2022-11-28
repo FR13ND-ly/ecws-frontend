@@ -1,0 +1,11 @@
+<div class="list mat-elevation-z4">
+    <h2 class="list__title">{{ name }}</h2>
+    <app-articles-list 
+        cdkDropList
+        [cdkDropListData]="articles"
+        *ngIf="articles"
+        (cdkDropListDropped)="drop($event)"
+        [articles]="articles">
+    </app-articles-list>
+    <button (click)="onAddArticle()" class="list__button" color="primary" mat-raised-button><mat-icon>add</mat-icon></button>
+</div>
