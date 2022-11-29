@@ -33,7 +33,6 @@ export class PagesService {
   }
 
   setPages(val : any) {
-    console.log(val)
     return this.http.post(this.APIUrl + 'setPages/', val).pipe(
       tap((res : any) => {
         this.pagesId.forEach(async (el : any, i : number) => {

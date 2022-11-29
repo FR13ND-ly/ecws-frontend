@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { PagesService } from './data-access/pages.service';
-import { map, delay, Observable, tap, catchError } from 'rxjs'
+import { Observable, catchError } from 'rxjs'
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
 import { setLoading } from '../state/loading/loading.actions';
@@ -39,7 +39,7 @@ export class PagesComponent implements OnInit {
         this.snackbar.open("Ceva a mers greșit", "Închide")
       })
     )
-    .subscribe(() => {
+    .subscribe((res) => {
       this.store.dispatch(setLoading({ loading : false }))
       this.snackbar.open("Paginile au fost actualizate", "", { duration: 5000 })
     })
