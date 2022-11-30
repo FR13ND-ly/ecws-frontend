@@ -44,8 +44,10 @@ export class PagesComponent implements OnInit {
       this.snackbar.open("Paginile au fost actualizate", "", { duration: 5000 })
     })
     event.target.value = null
-
-
-    // this.snackbar.open("Paginile au fost actualizate", "", { duration: 5000 })
   }
+
+  onOpen(page : string) {
+    location.href = page
+  }
+
 }

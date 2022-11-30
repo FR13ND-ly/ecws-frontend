@@ -65,6 +65,7 @@ export class EditDialogComponent implements OnInit {
 
   onResolve() {
     this.articlesService.changeToSecondCol(this.data.id)
+    this.dialogRef.close()
   }
 
   onRemoveArticle() {

@@ -1,5 +1,5 @@
 <div class="pages" *ngIf="pages$ | async as pages else loading">
-    <img class="page" [src]="page" *ngFor="let page of pages">
+    <img class="page" [src]="page" (click)="onOpen(page)" *ngFor="let page of pages">
 </div>
 <ng-template #loading>
     <div class="pages">
