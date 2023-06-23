@@ -21,7 +21,7 @@ export class AppComponent implements OnInit {
   )
 
   pagesUpdated$ : Observable<any> = this.pagesService.updated$.pipe(
-    debounceTime(10),
+    debounceTime(200),
     tap((res) => {
       if (this.selectedIndex == 1 && res) this.pagesService.setUpdated(false)
     })
