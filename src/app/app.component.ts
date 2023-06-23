@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { delay, map, Observable, tap } from 'rxjs';
+import { debounceTime, delay, map, Observable, tap } from 'rxjs';
 import { FilesService } from './files/data-access/files.service';
 import { HoroscopeService } from './horoscope/horoscope.service';
 import { PagesService } from './pages/data-access/pages.service';
@@ -21,9 +21,8 @@ export class AppComponent implements OnInit {
   )
 
   pagesUpdated$ : Observable<any> = this.pagesService.updated$.pipe(
-    delay(200),
+    debounceTime(10),
     tap((res) => {
-      console.log(this.selectedIndex == 1, res)
       if (this.selectedIndex == 1 && res) this.pagesService.setUpdated(false)
     })
   )
