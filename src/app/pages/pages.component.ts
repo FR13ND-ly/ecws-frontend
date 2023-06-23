@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { PagesService } from './data-access/pages.service';
-import { Observable, catchError } from 'rxjs'
+import { Observable, catchError, tap } from 'rxjs'
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
 import { setLoading } from '../state/loading/loading.actions';
@@ -16,7 +16,17 @@ export class PagesComponent implements OnInit {
 
   @ViewChild('fileInputRef') fileInputRef! : ElementRef
 
-  pages$ : Observable<any> = this.pagesService.getPagesUpdateListener()
+  pages$ : Observable<any> = this.pagesService.getPagesUpdateListener().pipe(
+    tap((res) => {
+      if (!this.firstUpdate) {
+        this.pagesService.setUpdated(true)
+        this.snackbar.open("Paginile au fost actualizate", "", { duration: 5000 })
+      }
+      this.firstUpdate = false
+    })
+  )
+
+  firstUpdate: boolean = true
 
   ngOnInit(): void {
     this.pagesService.init()

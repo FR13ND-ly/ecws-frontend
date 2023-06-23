@@ -1,26 +1,30 @@
 <form class="article" (submit)="onSubmit()" [formGroup]="articleForm" >
-    <mat-form-field appearance="fill">
-        <mat-label>Titlu</mat-label>
-        <input matInput required formControlName="title">
-    </mat-form-field>
-    <mat-form-field appearance="outline">
-        <mat-label>Text</mat-label>
-        <textarea class="article__text" #articleText matInput placeholder="Placeholder" cdkTextareaAutosize rows="5" required formControlName="text"></textarea>
-        <mat-hint align="end"><b>{{articleText.value.length}}</b> {{ articleText.value.length == 1 ? 'simbol' : 'simboluri'}}</mat-hint>
-    </mat-form-field>
-    <h3>Pagina:</h3>
-    <mat-slider min="1" max="8" step="1" value="1" thumbLabel  formControlName="page"></mat-slider>
-    <mat-form-field appearance="outline">
-        <textarea class="article__details" matInput placeholder="Detalii" cdkTextareaAutosize rows="3" formControlName="details"></textarea>
-    </mat-form-field>
-    <div class="article__files">
-        <div class="file" *ngFor='let file of data.files; let i = index'>
-            <div class="file__buttons-wrapper">
-                <button (click)="removeFile(i)" mat-icon-button color="warn" type="button"><mat-icon>delete</mat-icon></button>
-            </div>
-            <img [src]="file" class="file__image">
+    <div class="article__content">
+        <mat-form-field appearance="fill">
+            <mat-label>Titlu</mat-label>
+            <input matInput required formControlName="title">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Text</mat-label>
+            <textarea class="article__text" #articleText matInput placeholder="Placeholder" cdkTextareaAutosize rows="5" required formControlName="text"></textarea>
+            <mat-hint align="end"><b>{{articleText.value.length}}</b> {{ articleText.value.length == 1 ? 'caracter' : 'caractere'}}</mat-hint>
+        </mat-form-field>
+        <h3>Pagina:</h3>
+        <mat-slider min="1" max="8" step="1" value="1" thumbLabel formControlName="page"></mat-slider>
+        <mat-form-field appearance="outline">
+            <textarea class="article__details" matInput placeholder="Detalii" cdkTextareaAutosize rows="3" formControlName="details"></textarea>
+        </mat-form-field>
+        <div class="article__files">
+            <a class="file" *ngFor='let file of data.files; let i = index'>
+                <div class="file__buttons-wrapper">
+                    <button (click)="removeFile(i)" mat-icon-button color="warn" type="button"><mat-icon>delete</mat-icon></button>
+                </div>
+                <a [href]="file" target="_blank">
+                    <img [src]="file.slice(-3) == 'pdf' ? pdfImageUrl : file" class="file__image">
+                </a>
+            </a>
+            <div class="article__files-add-btn" (click)="onAddFile()"><mat-icon>add_photo_alternate</mat-icon></div>
         </div>
-        <div class="article__files-add-btn" (click)="onAddFile()"><mat-icon>add_photo_alternate</mat-icon></div>
     </div>
     <div class="article__actions">
         <div class="article__positive-actions">

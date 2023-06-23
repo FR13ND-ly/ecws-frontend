@@ -5,6 +5,6 @@
         <button [mat-dialog-close]="files[selected]?.imageUrl" mat-mini-fab color="primary" *ngIf="selected != undefined"><mat-icon>done</mat-icon></button>
     </div>
     <div class="files">
-        <img class="file" [class.file--selected]="i == selected" (click)="selected = i" [src]="file.pdf ? pdfImageUrl : file.imageUrl" *ngFor="let file of files; let i = index">
+        <img class="file" [class.file--selected]="i == selected" (click)="onSelect(i)" [src]="file.pdf ? pdfImageUrl : file.imageUrl" *ngFor="let file of files; let i = index">
     </div>
 </div>

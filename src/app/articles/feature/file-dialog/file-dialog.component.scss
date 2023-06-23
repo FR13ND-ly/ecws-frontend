@@ -3,7 +3,7 @@
     background-color: var(--background-color-2);
     padding: 1rem;
     box-sizing: border-box;
-    max-height: 90vh;
+    height: 90vh;
     width: 80vw;
     overflow-y: auto;
     position: relative;
@@ -31,7 +31,8 @@
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: .5rem;
-    height: calc(90vh - 2rem);
+    height: fit-content;
+    max-height: calc(90vh - 2rem);
 }
 
 .actions {

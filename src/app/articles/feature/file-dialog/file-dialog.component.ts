@@ -1,5 +1,5 @@
 import { DialogRef } from '@angular/cdk/dialog';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FilesService } from 'src/app/files/data-access/files.service';
 
@@ -8,7 +8,7 @@ import { FilesService } from 'src/app/files/data-access/files.service';
   templateUrl: './file-dialog.component.html',
   styleUrls: ['./file-dialog.component.scss']
 })
-export class FileDialogComponent implements OnInit {
+export class FileDialogComponent {
 
   constructor(private dialogRef: DialogRef, private filesService : FilesService) {}
 
@@ -18,9 +18,6 @@ export class FileDialogComponent implements OnInit {
 
   selected! : any
 
-  ngOnInit(): void {
-  }
-
   onUploadFile(event : any) {
     let file = event.target.files[0]
     let formData = new FormData()
@@ -29,7 +26,8 @@ export class FileDialogComponent implements OnInit {
     event.target.value = null
   }
 
-  done(file : any) {
-    this.dialogRef.close(file)
+  onSelect(id : any) {
+    if (this.selected == id) this.selected = undefined
+    else this.selected = id
   }
 }

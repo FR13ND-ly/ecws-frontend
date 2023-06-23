@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable, tap } from 'rxjs';
+import { Observable } from 'rxjs';
 import { setLoading } from '../state/loading/loading.actions';
 import { FilesService } from './data-access/files.service';
 
@@ -9,17 +9,13 @@ import { FilesService } from './data-access/files.service';
   templateUrl: './files.component.html',
   styleUrls: ['./files.component.scss']
 })
-export class FilesComponent implements OnInit {
+export class FilesComponent {
 
   constructor(private filesService : FilesService, private store : Store<any>) { }
 
   pdfImageUrl = "https://is5-ssl.mzstatic.com/image/thumb/Purple122/v4/02/07/35/020735e3-5214-a4a7-01b2-2bc55e89035b/AppIcon-0-1x_U007emarketing-0-7-0-85-220.png/1200x630wa.png"
 
   files$ : Observable<any> = this.filesService.getFilesUpdateListener()
-
-  ngOnInit(): void {
-    this.filesService.init()
-  }
 
   onDeleteFile(file : any) {
     if (!confirm("Ești sigur?")) return
@@ -51,5 +47,11 @@ export class FilesComponent implements OnInit {
     this.filesService.uploadFile(formData)
     event.target.value = null
     this.store.dispatch(setLoading({loading: false}))
+  }
+
+  toggleSize(file : any) {
+    if (file.pdf) return
+    file.initialSize = !file.initialSize
+    return file
   }
 }

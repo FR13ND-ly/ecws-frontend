@@ -5,19 +5,25 @@
 </header>
 <main>
     <mat-tab-group (selectedIndexChange)="changeMenu($event)" [selectedIndex]="selectedIndex">
-        <mat-tab label="Articole">
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <span>Articole</span>
+            </ng-template>
             <app-articles></app-articles>
         </mat-tab>
-        <mat-tab label="Pagini">
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <span [class.updated]="pagesUpdated$ | async">Pagini</span>
+            </ng-template>
             <app-pages></app-pages>
         </mat-tab>
         <mat-tab label="Fișiere">
             <app-files></app-files>
         </mat-tab>
-        <mat-tab label="Avize">
-            <app-widgets></app-widgets>
-        </mat-tab>
         <mat-tab label="Horoscop">
+            <ng-template mat-tab-label>
+                <span [class.updated]="horoscopeUpdated$ | async">Horoscop</span>
+            </ng-template>
             <app-horoscope></app-horoscope>
         </mat-tab>
     </mat-tab-group>

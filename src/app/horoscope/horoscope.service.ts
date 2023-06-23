@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { getDatabase, onValue, push, ref, update } from 'firebase/database';
-import { Subject, map } from 'rxjs'
+import { Subject, map, Observable, BehaviorSubject } from 'rxjs'
 
 @Injectable({
   providedIn: 'root'

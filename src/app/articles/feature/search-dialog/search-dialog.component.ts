@@ -11,10 +11,9 @@ import { setSearchText } from 'src/app/state/search-text/search-text.actions';
 })
 export class SearchDialogComponent implements OnInit {
 
-  constructor(private store : Store) { }
+  constructor(private store : Store<any>) { }
 
   searchText = new FormControl('');
-
 
   ngOnInit() {
     this.searchText.valueChanges.pipe(

@@ -18,3 +18,17 @@
         left: 0;
     }
 }
+
+.updated {
+    position: relative;
+    &::before {
+        content: '';
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background-color: var(--primary-color);
+        border-radius: 50%;
+        top: -.1rem;
+        right: -.5rem;
+    }
+}

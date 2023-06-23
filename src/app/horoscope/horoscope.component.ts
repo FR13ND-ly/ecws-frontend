@@ -1,21 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { HoroscopeService } from './horoscope.service';
-import { Observable, tap } from 'rxjs'
+import { BehaviorSubject, Observable, tap } from 'rxjs'
 
 @Component({
   selector: 'app-horoscope',
   templateUrl: './horoscope.component.html',
   styleUrls: ['./horoscope.component.scss']
 })
-export class HoroscopeComponent implements OnInit {
+export class HoroscopeComponent {
   
   constructor(private horoscopeService : HoroscopeService) { }
 
   horoscope$ : Observable<any> = this.horoscopeService.getHoroscopeUpdateListener()
-
-  ngOnInit() {
-    this.horoscopeService.init()
-  }
 
   onChangeHoroscope(horoscope : any, text : any) {
     horoscope.text = text

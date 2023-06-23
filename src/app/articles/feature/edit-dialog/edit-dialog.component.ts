@@ -14,6 +14,8 @@ import { FileDialogComponent } from '../file-dialog/file-dialog.component';
 export class EditDialogComponent implements OnInit {
 
   constructor(private dialogRef: DialogRef, @Inject(DIALOG_DATA) public data: any, private articlesService : ArticlesService, private dialog: MatDialog) {}
+  
+  pdfImageUrl = "https://is5-ssl.mzstatic.com/image/thumb/Purple122/v4/02/07/35/020735e3-5214-a4a7-01b2-2bc55e89035b/AppIcon-0-1x_U007emarketing-0-7-0-85-220.png/1200x630wa.png"
 
   articleForm = new FormGroup({
     title: new FormControl(this.data.title),
@@ -37,6 +39,8 @@ export class EditDialogComponent implements OnInit {
         files : this.data.files
       }
     }
+    article.title = article.title.trim()
+    article.text = article.text.trim()
     if (this.articleForm.valid) {
       if (this.data.new) {
         this.articlesService.addNewArticle(article)

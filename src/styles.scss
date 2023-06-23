@@ -63,21 +63,23 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background-color: transparent;
+  background-color: var(--background-color-1);
+  border-radius: 50vmax;
 }
 
 ::-webkit-scrollbar {
-  width: 20px;
+  display: flex;
+  width: 10px;
+  padding: .2rem;
+  overflow: hidden;
 }
 
 ::-webkit-scrollbar-thumb {
   background-color: #d6dee1;
   border-radius: 20px;
-  border: 6px solid transparent;
   background-clip: content-box;
   min-height: 100px;
   &:hover {
-      opacity: 100%;
       background-color: #bcc4c4;
   }
   &:active {

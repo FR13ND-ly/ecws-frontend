@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { getDatabase, onValue, push, ref, update } from 'firebase/database';
+import { getDatabase, onValue, ref, update } from 'firebase/database';
 import { map, Subject, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { BehaviorSubject } from 'rxjs'
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +15,10 @@ export class PagesService {
   readonly APIUrl = environment.apiURL + "pages/"
 
   private pagesUpdated = new Subject<[]>()
+
+  updated$ = new BehaviorSubject(
+    localStorage.getItem('pagesUpdated') == 'true'
+  )
 
   private db = getDatabase();
 
@@ -40,5 +45,10 @@ export class PagesService {
         })
       })
     )
+  }
+
+  setUpdated(value: boolean) {
+    this.updated$.next(value)
+    localStorage.setItem('pagesUpdated', value.toString())
   }
 }

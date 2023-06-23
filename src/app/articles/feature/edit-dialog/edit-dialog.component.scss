@@ -1,16 +1,25 @@
 :host {
     display: block;
     background-color: var(--background-color-2);
-    padding: 1rem;
+    // padding: 1rem;
     box-sizing: border-box;
-    max-height: 90vh;
+    height: 90vh;
     width: 40vw;
-    overflow-y: auto;
     border-radius: 6px;
 }
 
 .article {
-    display: grid;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: .1rem;
+    &__content {
+        display: grid;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 1.2rem;
+        padding-bottom: .2rem;
+    }
     &__text {
         max-height: 45vh;
     }
@@ -40,6 +49,9 @@
     &__actions {
         display: flex;
         justify-content: space-between;
+        background-color: var(--placeholder-color);
+        padding: 1rem;
+        border-radius: 4px;
     }
     &__positive-actions {
         display: flex;

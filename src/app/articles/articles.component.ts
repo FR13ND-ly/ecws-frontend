@@ -35,9 +35,9 @@ export class ArticlesComponent implements OnInit {
     if (!searchText?.trim()) return lists
     return lists.map((list : any) => list.filter((el : any) => {
       if (searchText[0] == "#") return el.page == searchText[1]
-      return el.text.includes(searchText)  ||
-             el.title.includes(searchText) ||
-             el.details.includes(searchText)
+      return el.text?.includes(searchText)  ||
+             el.title?.includes(searchText) ||
+             el.details?.includes(searchText)
     }))
   }
 

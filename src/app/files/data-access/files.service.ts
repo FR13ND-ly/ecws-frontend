@@ -24,6 +24,7 @@ export class FilesService {
         let files : any = Object.entries(filesRaw).map((file : any) => {
           file[1].fireId = file[0]
           file[1].pdf = file[1].imageUrl.slice(-3) == 'pdf'
+          file[1].initialSize = false
           return file[1]
         })
         this.filesUpdated.next(files.reverse())

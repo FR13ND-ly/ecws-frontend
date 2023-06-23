@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { delay, map, Observable, tap } from 'rxjs';
+import { FilesService } from './files/data-access/files.service';
+import { HoroscopeService } from './horoscope/horoscope.service';
+import { PagesService } from './pages/data-access/pages.service';
 
 @Component({
   selector: 'app-root',
@@ -9,15 +12,29 @@ import { Observable } from 'rxjs';
 })
 export class AppComponent implements OnInit {
   
-  constructor(private store: Store<any>) {}
+  constructor(private store: Store<any>, private horoscopeService: HoroscopeService, private pagesService: PagesService, private filesService: FilesService) {}
 
   title = 'ecws';
+
+  horoscopeUpdated$ : Observable<any> = this.horoscopeService.getHoroscopeUpdateListener().pipe(
+    map(res => !res.published)
+  )
+
+  pagesUpdated$ : Observable<any> = this.pagesService.updated$.pipe(
+    delay(200),
+    tap((res) => {
+      console.log(this.selectedIndex == 1, res)
+      if (this.selectedIndex == 1 && res) this.pagesService.setUpdated(false)
+    })
+  )
 
   loading$ : Observable<any> = this.store.select('loading')
 
   selectedIndex : number = 0
 
   ngOnInit() {
+    this.filesService.init()
+    this.horoscopeService.init()
     this.onSetTheme();
     if (location.hash == "#pagini") {
       this.selectedIndex = 1
@@ -25,11 +42,8 @@ export class AppComponent implements OnInit {
     else if (location.hash == "#fisiere") {
       this.selectedIndex = 2
     }
-    else if (location.hash == "#avize") {
-      this.selectedIndex = 3
-    }
     else if (location.hash == "#horoscop") {
-      this.selectedIndex = 4
+      this.selectedIndex = 3
     }
   }
 
@@ -54,6 +68,7 @@ export class AppComponent implements OnInit {
     }
     else if (index == 1){
       location.href = location.origin + '#pagini'  
+      this.pagesService.setUpdated(false)
     }
     else if (index == 2) {
       location.href = location.origin + '#fisiere'  

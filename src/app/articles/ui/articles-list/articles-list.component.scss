@@ -3,9 +3,10 @@
     flex-direction: column;
     gap: .5rem;
     height: 60vh;
-    overflow-y: overlay;
+    overflow-y: scroll;
     box-sizing: border-box;
     padding: .1rem;
+    padding-right: .5rem;
 }
 
 .article {

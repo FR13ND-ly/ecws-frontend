@@ -6,7 +6,7 @@
                 <button (click)="onDownloadFile(file)" class="file__image-action" mat-mini-fab color="accent"><mat-icon>download</mat-icon></button>
                 <button (click)="onDeleteFile(file)" class="file__image-action" mat-mini-fab color="warn"><mat-icon>delete</mat-icon></button>
             </div>
-            <img class="file__image" [src]="file.pdf ? pdfImageUrl : file.imageUrl">
+            <img (click)="toggleSize(file)" class="file__image" [class.initial-size]="file.initialSize" [src]="file.pdf ? pdfImageUrl : file.imageUrl">
         </div>
         <div class="file__content-wrapper">
             <span class="file__name">{{ file.name }}</span>
