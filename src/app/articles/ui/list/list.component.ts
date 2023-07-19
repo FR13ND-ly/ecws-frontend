@@ -43,7 +43,8 @@ export class ListComponent {
       details: '',
       files: [],
       col : this.col,
-      new: true
+      new: true,
+      disableClose : true
     }})
   }
 }

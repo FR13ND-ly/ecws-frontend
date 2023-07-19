@@ -32,6 +32,7 @@
             <button mat-raised-button color="primary" *ngIf="!data.new">Actualizează</button>
             <button mat-raised-button color="accent" type="button" (click)="onResolve()" *ngIf="!data.new && data.col == 1">Aranjat</button>
         </div>
+        <button mat-raised-button (click)="onClose()" color="warn" *ngIf="data.new">Anulează</button>
         <button mat-raised-button (click)="onRemoveArticle()" color="warn" *ngIf="!data.new">Șterge</button>
     </div>
 </form>
