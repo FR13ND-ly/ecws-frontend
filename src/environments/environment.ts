@@ -9,5 +9,5 @@ export const environment = {
     messagingSenderId: "678304363263",
     appId: "1:678304363263:web:3df2bea1a4c9c6ecfe12ca"
   },
-  apiURL: "https://ecwrks.pythonanywhere.com/"
+  apiURL: "https://ecws-backend.hermes-host.vip/"
 };
