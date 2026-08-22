@@ -6,7 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
 import { BehaviorSubject, combineLatest, finalize, map, startWith } from 'rxjs';
 import { setLoading } from '../state/loading/loading.actions';
-import { RssItem, RssService, plainRssText, rssItemToArticleJson } from './data-access/rss.service';
+import { RssItem, RssService, plainRssText, rssItemToAiClipboard } from './data-access/rss.service';
 import { RssSavedService } from './data-access/rss-saved.service';
 import { RssImportDialogComponent } from './rss-import-dialog/rss-import-dialog.component';
 import { RssItemDialogComponent } from './rss-item-dialog/rss-item-dialog.component';
@@ -128,8 +128,8 @@ export class RssComponent implements OnInit {
 
   copyJson(item: RssItem, event?: Event): void {
     event?.stopPropagation();
-    navigator.clipboard.writeText(JSON.stringify(rssItemToArticleJson(item), null, 2)).then(() => {
-      this.snackbar.open('Știrea a fost copiată ca JSON pentru editor', '', { duration: 2800 });
+    navigator.clipboard.writeText(rssItemToAiClipboard(item)).then(() => {
+      this.snackbar.open('JSON-ul și promptul pentru adaptare au fost copiate', '', { duration: 2800 });
     });
   }
 

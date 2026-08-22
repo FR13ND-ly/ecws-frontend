@@ -110,13 +110,53 @@ export function plainRssText(value: string): string {
 
 export function rssItemToArticleJson(item: RssItem): Record<string, unknown> {
   const text = plainRssText(item.content || item.summary);
+  const summary = plainRssText(item.summary);
   return {
+    source: {
+      publisher: item.sourceName,
+      url: item.url,
+      publishedAt: item.publishedAt || null
+    },
+    slug: '',
     title: plainRssText(item.title),
-    text,
-    details: `Sursă: ${item.sourceName}\nLink original: ${item.url}`,
-    page: 1,
-    col: 1,
-    position: 0,
-    files: item.imageUrl ? [item.imageUrl] : []
+    subtitle: '',
+    lead: summary,
+    secondaryCategories: [],
+    tags: [],
+    isFeatured: false,
+    isBreaking: false,
+    heroType: 'standard',
+    body: text ? [{ type: 'text', content: `<p>${escapeHtml(text)}</p>` }] : [],
+    metaTitle: '',
+    metaDescription: summary,
+    series: [],
+    remoteImages: item.imageUrl ? [{
+      url: item.imageUrl,
+      placement: 'cover',
+      altText: plainRssText(item.title),
+      caption: `Sursa imaginii: ${item.sourceName}`
+    }] : []
   };
+}
+
+export function rssItemToAiClipboard(item: RssItem): string {
+  const json = JSON.stringify(rssItemToArticleJson(item), null, 2);
+  return `${json}\n\n--- PROMPT PENTRU AI ---\n${ARTICLE_ADAPTATION_PROMPT}`;
+}
+
+const ARTICLE_ADAPTATION_PROMPT = `Adaptează materialul de mai sus într-un articol gata de importat în editorul Est-Curier.
+Returnează exclusiv un singur obiect JSON valid, fără bloc Markdown, explicații sau text înainte și după JSON.
+Păstrează obiectul source și lista remoteImages, inclusiv URL-urile și placement, pentru ca Est-Curier să descarce automat imaginile.
+Nu inventa fapte, citate, persoane, cifre sau contexte. Reformulează jurnalistic în limba română și păstrează atribuirea clară către sursa originală.
+Completează slug, title, subtitle, lead, tags, body, metaTitle și metaDescription. body trebuie să fie o listă de blocuri acceptate, în principal {"type":"text","content":"<p>...</p>"}.
+Elimină meniuri, recomandări, texte promoționale și fragmente fără legătură cu articolul. Nu include status sau authorId; acestea rămân controlate de redactor.`;
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+    .replace(/\n+/g, '</p><p>');
 }

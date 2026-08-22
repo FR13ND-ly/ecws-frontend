@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { RssItem, plainRssText, rssItemToArticleJson } from '../data-access/rss.service';
+import { RssItem, plainRssText, rssItemToAiClipboard } from '../data-access/rss.service';
 import { RssSavedService } from '../data-access/rss-saved.service';
 
 @Component({
@@ -25,8 +25,8 @@ export class RssItemDialogComponent {
     return Number.isNaN(date.getTime()) ? value : date.toLocaleString('ro-RO');
   }
   copyJson(): void {
-    navigator.clipboard.writeText(JSON.stringify(rssItemToArticleJson(this.item), null, 2)).then(() => {
-      this.snackbar.open('JSON compatibil cu editorul a fost copiat', '', { duration: 2800 });
+    navigator.clipboard.writeText(rssItemToAiClipboard(this.item)).then(() => {
+      this.snackbar.open('JSON-ul și promptul pentru adaptare au fost copiate', '', { duration: 2800 });
     });
   }
 
