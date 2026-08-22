@@ -20,9 +20,12 @@ import { RssSourcesDialogComponent } from './rss-sources-dialog/rss-sources-dial
 })
 export class RssComponent implements OnInit {
   readonly search = new FormControl('', { nonNullable: true });
-  readonly selectedSource = new BehaviorSubject<number | null>(null);
+  readonly selectedSource = new BehaviorSubject<string | null>(null);
   readonly mode = new BehaviorSubject<'latest' | 'saved'>('latest');
-  readonly sources$ = this.rssService.getSources();
+  readonly publishers$ = this.rssService.getItems().pipe(map((items) =>
+    [...new Set(items.map((item) => item.sourceName).filter(Boolean))]
+      .sort((left, right) => left.localeCompare(right, 'ro'))
+  ));
   readonly saved$ = this.savedService.saved$;
   readonly items$ = combineLatest([
     this.rssService.getItems(),
@@ -30,11 +33,17 @@ export class RssComponent implements OnInit {
     this.search.valueChanges.pipe(startWith(''), map((value) => value.toLowerCase().trim())),
     this.selectedSource,
     this.mode
-  ]).pipe(map(([latest, saved, search, source, mode]) => (mode === 'saved' ? saved : latest).filter((item) => {
-    const sourceMatches = source == null || item.sourceId === source;
-    const text = `${item.title} ${item.summary} ${item.content} ${item.sourceName}`.toLowerCase();
-    return sourceMatches && (!search || plainRssText(text).includes(search));
-  })));
+  ]).pipe(map(([latest, saved, search, source, mode]) => {
+    const seen = new Set<string>();
+    return (mode === 'saved' ? saved : latest).filter((item) => {
+      const titleKey = plainRssText(item.title).toLocaleLowerCase('ro');
+      if (mode === 'latest' && seen.has(titleKey)) return false;
+      seen.add(titleKey);
+      const sourceMatches = source == null || item.sourceName === source;
+      const text = `${item.title} ${item.summary} ${item.content} ${item.sourceName}`.toLowerCase();
+      return sourceMatches && (!search || plainRssText(text).includes(search));
+    });
+  }));
 
   refreshing = false;
 
@@ -97,13 +106,12 @@ export class RssComponent implements OnInit {
     if (mode === 'saved') this.selectedSource.next(null);
   }
 
-  selectSource(id: number | null): void {
-    this.selectedSource.next(id);
+  selectSource(name: string | null): void {
+    this.selectedSource.next(name);
   }
 
-  sourceLabel(sources: { id: number; name: string }[]): string {
-    const id = this.selectedSource.value;
-    return id == null ? 'Toate sursele' : sources.find((source) => source.id === id)?.name ?? 'Toate sursele';
+  sourceLabel(): string {
+    return this.selectedSource.value ?? 'Toate sursele';
   }
 
   preview(item: RssItem): string {
