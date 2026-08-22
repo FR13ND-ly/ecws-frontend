@@ -1,0 +1,18 @@
+<section class="import-dialog">
+    <header>
+        <div><span>Colectare manuală</span><h2>Importă un articol din URL</h2></div>
+        <button mat-icon-button aria-label="Închide" (click)="close()"><mat-icon>close</mat-icon></button>
+    </header>
+    <p>Lipește un articol de pe site-ul unei primării sau de pe orice publicație. Vom extrage titlul, coperta, autorul și textul disponibil.</p>
+    <form (ngSubmit)="import()">
+        <mat-form-field appearance="outline">
+            <mat-label>Adresa articolului</mat-label>
+            <mat-icon matPrefix>link</mat-icon>
+            <input matInput [formControl]="url" placeholder="https://primaria.md/noutati/articol">
+            <mat-hint>Pagina va fi doar previzualizată; nu devine automat articol editorial.</mat-hint>
+        </mat-form-field>
+        <button mat-raised-button color="primary" [disabled]="url.invalid || loading">
+            <mat-icon>{{ loading ? 'hourglass_top' : 'travel_explore' }}</mat-icon>{{ loading ? 'Se citește pagina…' : 'Importă și previzualizează' }}
+        </button>
+    </form>
+</section>

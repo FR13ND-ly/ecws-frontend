@@ -7,6 +7,8 @@ import { Store } from '@ngrx/store';
 import { BehaviorSubject, combineLatest, finalize, map, startWith } from 'rxjs';
 import { setLoading } from '../state/loading/loading.actions';
 import { RssItem, RssService, plainRssText, rssItemToArticleJson } from './data-access/rss.service';
+import { RssSavedService } from './data-access/rss-saved.service';
+import { RssImportDialogComponent } from './rss-import-dialog/rss-import-dialog.component';
 import { RssItemDialogComponent } from './rss-item-dialog/rss-item-dialog.component';
 import { RssSearchDialogComponent } from './rss-search-dialog/rss-search-dialog.component';
 import { RssSourcesDialogComponent } from './rss-sources-dialog/rss-sources-dialog.component';
@@ -19,12 +21,16 @@ import { RssSourcesDialogComponent } from './rss-sources-dialog/rss-sources-dial
 export class RssComponent implements OnInit {
   readonly search = new FormControl('', { nonNullable: true });
   readonly selectedSource = new BehaviorSubject<number | null>(null);
+  readonly mode = new BehaviorSubject<'latest' | 'saved'>('latest');
   readonly sources$ = this.rssService.getSources();
+  readonly saved$ = this.savedService.saved$;
   readonly items$ = combineLatest([
     this.rssService.getItems(),
+    this.savedService.saved$,
     this.search.valueChanges.pipe(startWith(''), map((value) => value.toLowerCase().trim())),
-    this.selectedSource
-  ]).pipe(map(([items, search, source]) => items.filter((item) => {
+    this.selectedSource,
+    this.mode
+  ]).pipe(map(([latest, saved, search, source, mode]) => (mode === 'saved' ? saved : latest).filter((item) => {
     const sourceMatches = source == null || item.sourceId === source;
     const text = `${item.title} ${item.summary} ${item.content} ${item.sourceName}`.toLowerCase();
     return sourceMatches && (!search || plainRssText(text).includes(search));
@@ -34,6 +40,7 @@ export class RssComponent implements OnInit {
 
   constructor(
     private rssService: RssService,
+    private savedService: RssSavedService,
     private dialog: Dialog,
     private matDialog: MatDialog,
     private snackbar: MatSnackBar,
@@ -77,6 +84,19 @@ export class RssComponent implements OnInit {
     this.matDialog.open(RssSourcesDialogComponent, { width: 'min(94vw, 720px)' });
   }
 
+  openImport(): void {
+    this.matDialog.open(RssImportDialogComponent, { width: 'min(94vw, 660px)' })
+      .afterClosed()
+      .subscribe((item: RssItem | undefined) => {
+        if (item) this.openItem(item);
+      });
+  }
+
+  setMode(mode: 'latest' | 'saved'): void {
+    this.mode.next(mode);
+    if (mode === 'saved') this.selectedSource.next(null);
+  }
+
   selectSource(id: number | null): void {
     this.selectedSource.next(id);
   }
@@ -103,5 +123,19 @@ export class RssComponent implements OnInit {
     navigator.clipboard.writeText(JSON.stringify(rssItemToArticleJson(item), null, 2)).then(() => {
       this.snackbar.open('Știrea a fost copiată ca JSON pentru editor', '', { duration: 2800 });
     });
+  }
+
+  isSaved(item: RssItem): boolean {
+    return this.savedService.isSaved(item);
+  }
+
+  toggleSaved(item: RssItem, event?: Event): void {
+    event?.stopPropagation();
+    try {
+      const saved = this.savedService.toggle(item);
+      this.snackbar.open(saved ? 'Știrea a fost salvată în acest browser' : 'Știrea a fost eliminată din salvate', '', { duration: 2500 });
+    } catch {
+      this.snackbar.open('Spațiul local al browserului este plin', 'Închide', { duration: 5000 });
+    }
   }
 }

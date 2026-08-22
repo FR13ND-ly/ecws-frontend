@@ -21,6 +21,7 @@ export interface RssItem {
   summary: string;
   content: string;
   author: string;
+  imageUrl: string;
   publishedAt: string | null;
   fetchedAt: string;
 }
@@ -77,6 +78,10 @@ export class RssService {
     );
   }
 
+  importUrl(url: string): Observable<RssItem> {
+    return this.http.post<RssItem>(this.apiUrl + 'import-url/', { url });
+  }
+
   reload(): void {
     this.reloadItems();
     this.reloadSources();
@@ -112,6 +117,6 @@ export function rssItemToArticleJson(item: RssItem): Record<string, unknown> {
     page: 1,
     col: 1,
     position: 0,
-    files: []
+    files: item.imageUrl ? [item.imageUrl] : []
   };
 }

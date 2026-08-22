@@ -24,6 +24,7 @@ import { RssComponent } from './rss/rss.component';
 import { RssItemDialogComponent } from './rss/rss-item-dialog/rss-item-dialog.component';
 import { RssSearchDialogComponent } from './rss/rss-search-dialog/rss-search-dialog.component';
 import { RssSourcesDialogComponent } from './rss/rss-sources-dialog/rss-sources-dialog.component';
+import { RssImportDialogComponent } from './rss/rss-import-dialog/rss-import-dialog.component';
 
 @NgModule({
   declarations: [
@@ -44,6 +45,7 @@ import { RssSourcesDialogComponent } from './rss/rss-sources-dialog/rss-sources-
     RssItemDialogComponent,
     RssSearchDialogComponent,
     RssSourcesDialogComponent,
+    RssImportDialogComponent,
   ],
   imports: [
     BrowserModule,

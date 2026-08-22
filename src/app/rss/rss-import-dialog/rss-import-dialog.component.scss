@@ -1,0 +1,9 @@
+.import-dialog { padding: 1.25rem; color: var(--text-color); background: var(--background-color-2); border-radius: 8px; }
+header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: .75rem; }
+header span { color: var(--accent-color); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; }
+header h2 { margin: .2rem 0 0; }
+.import-dialog > p { margin: 0 0 1.2rem; opacity: .72; line-height: 1.5; }
+form { display: flex; align-items: flex-start; gap: .65rem; }
+mat-form-field { flex: 1; }
+form > button { margin-top: .25rem; }
+@media (max-width: 640px) { form { flex-direction: column; } mat-form-field, form > button { width: 100%; } }

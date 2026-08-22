@@ -3,8 +3,12 @@
         <div><span>{{ item.sourceName }}</span><h1>{{ item.title }}</h1><small>{{ date() }}<ng-container *ngIf="item.author"> · {{ item.author }}</ng-container></small></div>
         <button mat-icon-button aria-label="Închide" (click)="close()"><mat-icon>close</mat-icon></button>
     </header>
-    <section class="rss-dialog__body"><p>{{ text() }}</p></section>
+    <section class="rss-dialog__body">
+        <img class="rss-dialog__cover" *ngIf="item.imageUrl" [src]="item.imageUrl" [alt]="item.title">
+        <p>{{ text() }}</p>
+    </section>
     <footer>
+        <button mat-button (click)="toggleSaved()"><mat-icon>{{ isSaved() ? 'bookmark' : 'bookmark_border' }}</mat-icon>{{ isSaved() ? 'Salvată' : 'Salvează' }}</button>
         <a mat-button [href]="item.url" target="_blank" rel="noopener"><mat-icon>open_in_new</mat-icon>Articolul original</a>
         <button mat-raised-button color="primary" (click)="copyJson()"><mat-icon>data_object</mat-icon>Copiază pentru editor</button>
     </footer>

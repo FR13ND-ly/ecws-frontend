@@ -6,6 +6,7 @@
             <p *ngIf="items$ | async as items">{{ items.length }} știri în inbox</p>
         </div>
         <div class="rss__header-actions">
+            <button mat-stroked-button (click)="openImport()"><mat-icon>add_link</mat-icon>Importă URL</button>
             <button mat-stroked-button (click)="openSearch()"><mat-icon>search</mat-icon>Caută</button>
             <button mat-stroked-button (click)="openSources()"><mat-icon>rss_feed</mat-icon>Surse</button>
             <button mat-raised-button color="primary" (click)="refresh()" [disabled]="refreshing">
@@ -15,6 +16,10 @@
     </header>
 
     <div class="rss__filters" *ngIf="sources$ | async as sources">
+        <div class="rss__modes" *ngIf="saved$ | async as saved">
+            <button mat-button [class.active]="mode.value === 'latest'" (click)="setMode('latest')">Ultimele</button>
+            <button mat-button [class.active]="mode.value === 'saved'" (click)="setMode('saved')"><mat-icon>bookmark</mat-icon>Salvate · {{ saved.length }}</button>
+        </div>
         <button mat-button [matMenuTriggerFor]="sourceMenu">
             <mat-icon>filter_alt</mat-icon>{{ sourceLabel(sources) }}<mat-icon>expand_more</mat-icon>
         </button>
@@ -28,20 +33,27 @@
     <ng-container *ngIf="items$ | async as items">
         <div class="rss-grid">
             <article class="rss-card mat-elevation-z1" tabindex="0" *ngFor="let item of items" (click)="openItem(item)" (keydown.enter)="openItem(item)">
-                <header><span>{{ item.sourceName }}</span><time>{{ itemDate(item) }}</time></header>
-                <h2>{{ item.title }}</h2>
-                <p>{{ preview(item) }}</p>
-                <footer>
-                    <span>{{ item.author || 'Redacția' }}</span>
-                    <button mat-icon-button matTooltip="Copiază ca JSON" aria-label="Copiază ca JSON" (click)="copyJson(item, $event)"><mat-icon>data_object</mat-icon></button>
-                    <a mat-icon-button matTooltip="Deschide sursa" aria-label="Deschide sursa" [href]="item.url" target="_blank" rel="noopener" (click)="$event.stopPropagation()"><mat-icon>open_in_new</mat-icon></a>
-                </footer>
+                <div class="rss-card__cover" [class.rss-card__cover--empty]="!item.imageUrl">
+                    <img *ngIf="item.imageUrl; else coverPlaceholder" [src]="item.imageUrl" [alt]="item.title" loading="lazy">
+                    <ng-template #coverPlaceholder><mat-icon>newspaper</mat-icon></ng-template>
+                </div>
+                <div class="rss-card__content">
+                    <header><span>{{ item.sourceName }}</span><time>{{ itemDate(item) }}</time></header>
+                    <h2>{{ item.title }}</h2>
+                    <p>{{ preview(item) }}</p>
+                    <footer>
+                        <span>{{ item.author || 'Redacția' }}</span>
+                        <button mat-icon-button [matTooltip]="isSaved(item) ? 'Elimină din salvate' : 'Salvează'" aria-label="Salvează știrea" (click)="toggleSaved(item, $event)"><mat-icon>{{ isSaved(item) ? 'bookmark' : 'bookmark_border' }}</mat-icon></button>
+                        <button mat-icon-button matTooltip="Copiază ca JSON" aria-label="Copiază ca JSON" (click)="copyJson(item, $event)"><mat-icon>data_object</mat-icon></button>
+                        <a mat-icon-button matTooltip="Deschide sursa" aria-label="Deschide sursa" [href]="item.url" target="_blank" rel="noopener" (click)="$event.stopPropagation()"><mat-icon>open_in_new</mat-icon></a>
+                    </footer>
+                </div>
             </article>
         </div>
         <div class="empty-state" *ngIf="!items.length">
             <mat-icon>rss_feed</mat-icon>
-            <strong>Inboxul RSS este gol</strong>
-            <span>Actualizează fluxul sau verifică sursele configurate.</span>
+            <strong>{{ mode.value === 'saved' ? 'Nu ai știri salvate' : 'Inboxul RSS este gol' }}</strong>
+            <span>{{ mode.value === 'saved' ? 'Folosește bookmarkul de pe un card pentru a-l păstra în acest browser.' : 'Actualizează fluxul sau verifică sursele configurate.' }}</span>
         </div>
     </ng-container>
 </section>
