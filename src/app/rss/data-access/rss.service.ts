@@ -148,7 +148,7 @@ const ARTICLE_ADAPTATION_PROMPT = `Adaptează materialul de mai sus într-un art
 Returnează exclusiv un singur obiect JSON valid, fără bloc Markdown, explicații sau text înainte și după JSON.
 Păstrează obiectul source și lista remoteImages, inclusiv URL-urile și placement, pentru ca Est-Curier să descarce automat imaginile.
 Nu inventa fapte, citate, persoane, cifre sau contexte. Reformulează jurnalistic în limba română și păstrează atribuirea clară către sursa originală.
-Completează slug, title, subtitle, lead, tags, body, metaTitle și metaDescription. body trebuie să fie o listă de blocuri acceptate, în principal {"type":"text","content":"<p>...</p>"}.
+Completează slug, title, subtitle, lead, primaryCategory, tags, body, metaTitle și metaDescription. Pentru primaryCategory folosește exact unul dintre slug-urile active: local, cultural, economic, criuleni, dubasari, ecologic, finante, incidente, international, interviu, investigatii, justitie, longread, opinii-editorial, politie, sanatate, sportiv, educatie, politic, social, stop-fals, succes-comunitar sau transport. body trebuie să fie o listă de blocuri acceptate, în principal {"type":"text","content":"<p>...</p>"}.
 Elimină meniuri, recomandări, texte promoționale și fragmente fără legătură cu articolul. Nu include status sau authorId; acestea rămân controlate de redactor.`;
 
 function escapeHtml(value: string): string {
