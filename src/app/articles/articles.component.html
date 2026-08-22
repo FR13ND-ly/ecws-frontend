@@ -1,10 +1,3 @@
-<div class="workspace-toolbar">
-    <mat-form-field appearance="outline">
-        <mat-label>Caută articole</mat-label>
-        <mat-icon matPrefix>search</mat-icon>
-        <input matInput [formControl]="search" placeholder="Text, titlu, detalii sau #pagina">
-    </mat-form-field>
-</div>
 <div class="lists" *ngIf="articles$ | async as articles" cdkDropListGroup>
     <app-list name="Disponibile" col="1" [articles]="articles[0]"></app-list>
     <app-list name="Aranjate" col="2" [articles]="articles[1]"></app-list>
@@ -13,4 +6,7 @@
 </div>
 <div class="actions">
     <button (click)="nextEdition()" mat-mini-fab color="primary"><mat-icon>published_with_changes</mat-icon></button>
+    <button (click)="openSearch()" mat-mini-fab color="accent" aria-label="Caută articole" matTooltip="Caută articole">
+        <mat-icon>{{ (searchText$ | async) ? 'search_off' : 'search' }}</mat-icon>
+    </button>
 </div>

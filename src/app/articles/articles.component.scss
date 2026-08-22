@@ -1,6 +1,5 @@
 :host {
-    display: grid;
-    grid-template-columns: 1fr auto;
+    display: flex;
     gap: .5rem;
     padding: 1rem;
     box-sizing: border-box;
@@ -21,9 +20,4 @@
     align-items: flex-start;
     overflow-x: auto;
     padding-bottom: .5rem;
-}
-
-.workspace-toolbar {
-    grid-column: 1 / -1;
-    mat-form-field { width: min(100%, 620px); }
 }

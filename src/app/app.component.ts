@@ -23,13 +23,6 @@ export class AppComponent implements OnInit {
   loading$ : Observable<any> = this.store.select('loading')
 
   selectedIndex : number = 0
-  readonly sections = [
-    { label: 'Articole', icon: 'view_column', hash: '#articole' },
-    { label: 'Pagini', icon: 'auto_stories', hash: '#pagini' },
-    { label: 'Fișiere', icon: 'folder', hash: '#fisiere' },
-    { label: 'Arhivă', icon: 'archive', hash: '#arhiva' },
-    { label: 'Horoscop', icon: 'auto_awesome', hash: '#horoscop' },
-  ]
 
   ngOnInit() {
     this.filesService.init()
@@ -64,12 +57,8 @@ export class AppComponent implements OnInit {
     );
   }
 
-  selectSection(index: number) {
-    this.selectedIndex = index
-  }
-
   changeMenu(index: number){
-    const section = this.sections[index]
-    if (section) history.replaceState(null, '', section.hash)
+    const hashes = ['#articole', '#pagini', '#fisiere', '#arhiva', '#horoscop']
+    if (hashes[index]) history.replaceState(null, '', hashes[index])
   }
 }

@@ -1,4 +1,17 @@
-<mat-form-field appearance="outline">
-    <mat-label>Text</mat-label>
-    <input matInput [formControl]="searchText">
-</mat-form-field>
+<section class="search-dialog">
+    <header>
+        <div>
+            <span>Căutare rapidă</span>
+            <h2>Caută articole</h2>
+        </div>
+        <button mat-icon-button aria-label="Închide" (click)="close()"><mat-icon>close</mat-icon></button>
+    </header>
+    <mat-form-field appearance="outline">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [formControl]="searchText" placeholder="Titlu, text, detalii sau #pagina">
+        <button *ngIf="searchText.value" matSuffix mat-icon-button aria-label="Șterge căutarea" (click)="clear()">
+            <mat-icon>backspace</mat-icon>
+        </button>
+        <mat-hint>Exemplu: Criuleni sau #3</mat-hint>
+    </mat-form-field>
+</section>

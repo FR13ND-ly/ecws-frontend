@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, map, combineLatest } from 'rxjs';
 import { ArticlesService } from './data-access/articles.service';
-import { FormControl } from '@angular/forms';
-import { setSearchText } from '../state/search-text/search-text.actions';
+import { MatDialog } from '@angular/material/dialog';
+import { SearchDialogComponent } from './feature/search-dialog/search-dialog.component';
 
 @Component({
   selector: 'app-articles',
@@ -12,7 +12,7 @@ import { setSearchText } from '../state/search-text/search-text.actions';
 })
 export class ArticlesComponent implements OnInit {
 
-  constructor(private articlesService: ArticlesService, private store : Store<any>) { }
+  constructor(private articlesService: ArticlesService, private store : Store<any>, private dialog: MatDialog) { }
 
   articlesRaw$ = this.articlesService.getArticlesUpdateListener()
 
@@ -23,10 +23,15 @@ export class ArticlesComponent implements OnInit {
   )
 
   isDragging : boolean = false
-  search = new FormControl('', { nonNullable: true })
   ngOnInit(): void {
     this.articlesService.init()
-    this.search.valueChanges.subscribe((text) => this.store.dispatch(setSearchText({ text })))
+  }
+
+  openSearch() {
+    this.dialog.open(SearchDialogComponent, {
+      width: 'min(92vw, 560px)',
+      autoFocus: 'input'
+    })
   }
 
   nextEdition() {

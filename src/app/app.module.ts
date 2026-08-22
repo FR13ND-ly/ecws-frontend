@@ -17,6 +17,7 @@ import { appState } from './state/app.state';
 import { StoreModule } from '@ngrx/store';
 import { HoroscopeComponent } from './horoscope/horoscope.component';
 import { ArchiveComponent } from './archive/archive.component';
+import { SearchDialogComponent } from './articles/feature/search-dialog/search-dialog.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { ArchiveComponent } from './archive/archive.component';
     FileDialogComponent,
     HoroscopeComponent,
     ArchiveComponent,
+    SearchDialogComponent,
   ],
   imports: [
     BrowserModule,

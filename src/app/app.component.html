@@ -1,23 +1,10 @@
 <header class="header mat-elevation-z2">
-    <button class="header__brand" type="button" (click)="selectSection(0)">
-        <strong>Est-Curier Workspace</strong>
-        <span>{{ sections[selectedIndex].label }}</span>
-    </button>
-    <div class="header__actions">
-        <button aria-label="Schimbă tema" mat-icon-button (click)="onChangeTheme()"><mat-icon>brightness_4</mat-icon></button>
-        <button aria-label="Deschide navigarea" mat-icon-button [matMenuTriggerFor]="workspaceMenu"><mat-icon>menu</mat-icon></button>
-    </div>
-    <mat-menu #workspaceMenu="matMenu" xPosition="before">
-        <button mat-menu-item *ngFor="let section of sections; let i = index" (click)="selectSection(i)">
-            <mat-icon>{{ section.icon }}</mat-icon>
-            <span>{{ section.label }}</span>
-            <mat-icon class="menu-check" *ngIf="selectedIndex === i">check</mat-icon>
-        </button>
-    </mat-menu>
+    <h2 class="header__title">Est-Curier Workspace</h2>
+    <button class="header__change-theme-button" aria-label="Schimbă tema" mat-icon-button (click)="onChangeTheme()"><mat-icon>brightness_4</mat-icon></button>
     <mat-progress-bar class="header__loader" mode="indeterminate" *ngIf="loading$ | async"></mat-progress-bar>
 </header>
 <main>
-    <mat-tab-group class="workspace-tabs" animationDuration="0ms" (selectedIndexChange)="changeMenu($event)" [selectedIndex]="selectedIndex">
+    <mat-tab-group (selectedIndexChange)="changeMenu($event)" [selectedIndex]="selectedIndex">
         <mat-tab>
             <ng-template mat-tab-label>
                 <span>Articole</span>
