@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { debounceTime, delay, map, Observable, tap } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { FilesService } from './files/data-access/files.service';
 import { HoroscopeService } from './horoscope/horoscope.service';
 import { PagesService } from './pages/data-access/pages.service';
@@ -20,16 +20,16 @@ export class AppComponent implements OnInit {
     map(res => !res.published)
   )
 
-  pagesUpdated$ : Observable<any> = this.pagesService.updated$.pipe(
-    debounceTime(200),
-    tap((res) => {
-      if (this.selectedIndex == 1 && res) this.pagesService.setUpdated(false)
-    })
-  )
-
   loading$ : Observable<any> = this.store.select('loading')
 
   selectedIndex : number = 0
+  readonly sections = [
+    { label: 'Articole', icon: 'view_column', hash: '#articole' },
+    { label: 'Pagini', icon: 'auto_stories', hash: '#pagini' },
+    { label: 'Fișiere', icon: 'folder', hash: '#fisiere' },
+    { label: 'Arhivă', icon: 'archive', hash: '#arhiva' },
+    { label: 'Horoscop', icon: 'auto_awesome', hash: '#horoscop' },
+  ]
 
   ngOnInit() {
     this.filesService.init()
@@ -64,22 +64,12 @@ export class AppComponent implements OnInit {
     );
   }
 
-  changeMenu(index: any){
-    if (index == 0) {
-      history.replaceState(null, '', '#articole')
-    }
-    else if (index == 1){
-      history.replaceState(null, '', '#pagini')
-      this.pagesService.setUpdated(false)
-    }
-    else if (index == 2) {
-      history.replaceState(null, '', '#fisiere')
-    }
-    else if (index == 3) {
-      history.replaceState(null, '', '#arhiva')
-    }
-    else if (index == 4) {
-      history.replaceState(null, '', '#horoscop')
-    }
+  selectSection(index: number) {
+    this.selectedIndex = index
+  }
+
+  changeMenu(index: number){
+    const section = this.sections[index]
+    if (section) history.replaceState(null, '', section.hash)
   }
 }
