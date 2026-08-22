@@ -144,12 +144,69 @@ export function rssItemToAiClipboard(item: RssItem): string {
   return `${json}\n\n--- PROMPT PENTRU AI ---\n${ARTICLE_ADAPTATION_PROMPT}`;
 }
 
-const ARTICLE_ADAPTATION_PROMPT = `Adaptează materialul de mai sus într-un articol gata de importat în editorul Est-Curier.
-Returnează exclusiv un singur obiect JSON valid, fără bloc Markdown, explicații sau text înainte și după JSON.
-Păstrează obiectul source și lista remoteImages, inclusiv URL-urile și placement, pentru ca Est-Curier să descarce automat imaginile.
-Nu inventa fapte, citate, persoane, cifre sau contexte. Reformulează jurnalistic în limba română și păstrează atribuirea clară către sursa originală.
-Completează slug, title, subtitle, lead, primaryCategory, tags, body, metaTitle și metaDescription. Pentru primaryCategory folosește exact unul dintre slug-urile active: local, cultural, economic, criuleni, dubasari, ecologic, finante, incidente, international, interviu, investigatii, justitie, longread, opinii-editorial, politie, sanatate, sportiv, educatie, politic, social, stop-fals, succes-comunitar sau transport. body trebuie să fie o listă de blocuri acceptate, în principal {"type":"text","content":"<p>...</p>"}.
-Elimină meniuri, recomandări, texte promoționale și fragmente fără legătură cu articolul. Nu include status sau authorId; acestea rămân controlate de redactor.`;
+const ARTICLE_ADAPTATION_PROMPT = `Adaptează materialul sursă într-un articol gata de importat în editorul Est-Curier.
+
+REGULI DE RĂSPUNS
+1. Returnează exclusiv un singur obiect JSON valid. Fără Markdown, comentarii, explicații sau text în afara obiectului.
+2. Folosește numai câmpurile și valorile descrise mai jos. Nu adăuga status, authorId, coverImageId, id, publishedAt editorial sau alte câmpuri.
+3. Nu inventa fapte, citate, persoane, cifre sau contexte. Reformulează jurnalistic în română și atribuie clar informația sursei originale.
+4. Elimină meniuri, recomandări, reclame, apeluri promoționale și fragmente fără legătură cu articolul.
+5. Păstrează source și remoteImages. Nu modifica URL-urile imaginilor și nu inventa identificatori media.
+
+SCHEMA EXACTĂ A OBIECTULUI OUTPUT
+{
+  "source": {
+    "publisher": "string",
+    "url": "URL HTTP/HTTPS",
+    "publishedAt": "string ISO-8601 sau null"
+  },
+  "slug": "string cu litere mici, cifre și cratime",
+  "title": "string obligatoriu",
+  "subtitle": "string; poate fi gol",
+  "lead": "string obligatoriu, rezumat jurnalistic scurt",
+  "primaryCategory": "un singur slug valid din lista de categorii",
+  "secondaryCategories": ["zero sau mai multe slug-uri valide, fără categoria principală"],
+  "tags": ["string lowercase", "fără duplicate"],
+  "isFeatured": false,
+  "isBreaking": false,
+  "heroType": "standard | split | immersive | magazine",
+  "body": ["blocuri definite mai jos"],
+  "metaTitle": "string de maximum aproximativ 60 de caractere",
+  "metaDescription": "string de maximum aproximativ 160 de caractere",
+  "series": [{"series":"slug existent","position":1}],
+  "remoteImages": ["obiecte definite mai jos"]
+}
+
+CATEGORII ACCEPTATE PENTRU primaryCategory ȘI secondaryCategories
+refugiat-in-moldova, local, cultural, alegeri-parlamentare-2, economic, alegeri-prezidentiale, campanii, criuleni, divertisment, dubasari, ec-junior, ec-special, ecologic, est-curier, fii-cu-ochii-pe-autoritati, finante, incidente, international, interviu-2, accidente-rutiere, investigatii, justitie, longread, lucru-in-moldova-ec-special, lucru-in-moldova, no-coment, opinii-editorial, politie, publicitate-politica, sanatate, sportiv, educatie, politic, social, stop-fals, succes-comunitar, transport, uncategorized, interviu, alegeri-locale.
+
+BLOCURI ACCEPTATE ÎN body
+- Text: {"type":"text","content":"<p>Text HTML sigur, structurat în paragrafe.</p>"}
+- HTML: {"type":"html","content":"HTML sigur"}
+- Citat: {"type":"quote","content":"citat","author":"autor opțional"}
+- Casetă informativă: {"type":"info","title":"titlu","content":"conținut"}
+- Embed: {"type":"embed","url":"URL HTTP/HTTPS","provider":"string opțional"}
+- Imagine existentă: {"type":"image","media_id":"UUID existent","title":"legendă opțională","layout":"content | wide | full"}
+- Galerie existentă: {"type":"gallery","media_ids":["UUID existent"],"columns":2} sau {"type":"gallery","items":[{"media_id":"UUID existent","caption":"legendă opțională"}],"columns":2}
+- PDF existent: {"type":"pdf","media_id":"UUID existent","title":"titlu opțional"}
+- Sondaj existent: {"type":"poll","poll_id":1}
+- Slider existent: {"type":"imageslider","slides":[{"media_id":"UUID existent","caption":"legendă opțională"}],"auto_play":false}
+Pentru conținut preluat din RSS folosește în principal blocuri text. Nu crea blocuri image, gallery, pdf, poll sau imageslider cu ID-uri inventate; imaginile noi se declară în remoteImages.
+
+STRUCTURA remoteImages
+Fiecare element trebuie să aibă forma:
+{
+  "url": "URL HTTP/HTTPS păstrat exact",
+  "placement": "cover | body",
+  "altText": "descriere accesibilă opțională",
+  "caption": "credit sau legendă opțională",
+  "name": "nume de fișier opțional",
+  "layout": "content | wide | full",
+  "afterBlock": 0
+}
+Pentru placement cover omite afterBlock. Pentru placement body, afterBlock este indexul de la zero al blocului după care se inserează imaginea; dacă este omis, imaginea se adaugă la final. Păstrează cel puțin imaginea de copertă primită în JSON.
+
+În series, series trebuie să fie slug-ul unei serii existente, iar position un număr întreg pozitiv. Păstrează valorile existente și nu inventa serii; dacă intrarea nu conține serii, returnează []. isFeatured și isBreaking trebuie să rămână întotdeauna false.`;
 
 function escapeHtml(value: string): string {
   return value
