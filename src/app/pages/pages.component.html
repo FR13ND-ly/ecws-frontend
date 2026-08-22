@@ -13,14 +13,7 @@
 
     <input #fileInput hidden type="file" accept="application/pdf,.pdf" (change)="onSelectFile($event)">
 
-    <section
-        class="upload-zone"
-        [class.upload-zone--active]="dragging"
-        [class.upload-zone--selected]="pendingFile"
-        (dragover)="onDragOver($event)"
-        (dragleave)="onDragLeave($event)"
-        (drop)="onDrop($event)">
-        <ng-container *ngIf="pendingFile as file; else emptyUpload">
+    <section class="selected-edition" *ngIf="pendingFile as file">
             <div class="selected-file">
                 <mat-icon>picture_as_pdf</mat-icon>
                 <div>
@@ -35,14 +28,6 @@
                     {{ uploading ? 'Se procesează…' : 'Înlocuiește ediția' }}
                 </button>
             </div>
-        </ng-container>
-        <ng-template #emptyUpload>
-            <mat-icon>cloud_upload</mat-icon>
-            <div>
-                <strong>Trage PDF-ul ediției aici</strong>
-                <span>sau folosește „Alege PDF” · minimum 8 pagini · Ctrl+U</span>
-            </div>
-        </ng-template>
     </section>
 
     <div class="pages" *ngIf="state.pages.length; else noPages">

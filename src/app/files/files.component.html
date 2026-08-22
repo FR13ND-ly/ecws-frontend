@@ -9,6 +9,15 @@
         <strong>Lasă fișierele aici</strong>
     </div>
 
+    <button class="upload-zone" type="button" (click)="fileInput.click()">
+        <mat-icon>add_to_drive</mat-icon>
+        <span>
+            <strong>Adaugă fișiere</strong>
+            <small>Trage-le aici, lipește-le cu Ctrl+V sau alege-le de pe dispozitiv</small>
+        </span>
+        <mat-icon class="upload-zone__action">upload</mat-icon>
+    </button>
+
     <ng-container *ngIf="weeks$ | async as weeks">
         <section class="week" *ngFor="let week of weeks">
             <h2 class="week__title">{{ week.label }}</h2>
@@ -28,11 +37,12 @@
                 </article>
             </div>
         </section>
-        <div class="empty-state" *ngIf="!weeks.length">Trage primele fișiere aici sau folosește butonul de încărcare.</div>
+        <div class="empty-state" *ngIf="!weeks.length">Trage primele fișiere aici, lipește-le din clipboard sau folosește zona de încărcare.</div>
     </ng-container>
+
+    <input (change)="onUploadFile($event)" type="file" multiple hidden #fileInput>
 </section>
 
 <div class="actions">
-    <input (change)="onUploadFile($event)" type="file" multiple style="display: none;" #fileInput>
     <button aria-label="Încarcă fișiere" (click)="fileInput.click()" mat-mini-fab color="primary"><mat-icon>upload</mat-icon></button>
 </div>

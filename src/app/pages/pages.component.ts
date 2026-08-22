@@ -16,7 +16,6 @@ export class PagesComponent implements OnInit {
 
   readonly state$ = this.pagesService.getStateListener();
   pendingFile: File | null = null;
-  dragging = false;
   uploading = false;
 
   constructor(
@@ -39,22 +38,6 @@ export class PagesComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     this.setCandidate(input.files?.[0] ?? null);
     input.value = '';
-  }
-
-  onDragOver(event: DragEvent): void {
-    event.preventDefault();
-    this.dragging = true;
-  }
-
-  onDragLeave(event: DragEvent): void {
-    event.preventDefault();
-    this.dragging = false;
-  }
-
-  onDrop(event: DragEvent): void {
-    event.preventDefault();
-    this.dragging = false;
-    this.setCandidate(event.dataTransfer?.files?.[0] ?? null);
   }
 
   clearSelection(): void {

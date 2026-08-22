@@ -4,7 +4,7 @@
     color: var(--text-color);
 }
 
-.edition { max-width: 1280px; margin: 0 auto; }
+.edition { width: 100%; }
 .edition__header {
     display: flex;
     align-items: flex-start;
@@ -22,34 +22,30 @@
     text-transform: uppercase;
 }
 
-.upload-zone {
+.selected-edition {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     gap: .85rem;
-    min-height: 92px;
     margin-bottom: 1.25rem;
-    padding: 1rem 1.25rem;
+    padding: .75rem 1rem;
     box-sizing: border-box;
-    border: 2px dashed var(--placeholder-border-color);
-    border-radius: 12px;
+    border: 1px solid var(--placeholder-border-color);
+    border-radius: 8px;
     background: var(--background-color-2);
-    transition: border-color .15s, background-color .15s;
-    > mat-icon { color: var(--primary-color); transform: scale(1.2); }
-    div { display: flex; flex-direction: column; gap: .2rem; }
     span { font-size: .82rem; opacity: .65; }
-    &--active { border-color: var(--primary-color); background: var(--background-color-3); }
-    &--selected { justify-content: space-between; border-style: solid; }
 }
 .selected-file { display: flex !important; flex-direction: row !important; align-items: center; min-width: 0; }
 .selected-file > mat-icon { color: var(--red-color); font-size: 2rem; width: 2rem; height: 2rem; }
+.selected-file > div { display: flex; flex-direction: column; gap: .2rem; min-width: 0; }
 .selected-file strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .upload-actions { display: flex !important; flex-direction: row !important; align-items: center; flex-shrink: 0; }
 
 .pages {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+    gap: .75rem;
 }
 .page {
     position: relative;
@@ -88,7 +84,7 @@
     :host { padding: .85rem; }
     .edition__header { align-items: center; }
     .edition__header p { display: none; }
-    .upload-zone, .upload-zone--selected { align-items: stretch; flex-direction: column; }
+    .selected-edition { align-items: stretch; flex-direction: column; }
     .upload-actions { justify-content: flex-end; }
     .pages { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
 }

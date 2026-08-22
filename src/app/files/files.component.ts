@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
 import { Observable, finalize, forkJoin, map } from 'rxjs';
 import { setLoading } from '../state/loading/loading.actions';
@@ -23,7 +24,21 @@ export class FilesComponent {
     map((files) => this.groupByWeek(files))
   );
 
-  constructor(private filesService: FilesService, private store: Store) {}
+  constructor(private filesService: FilesService, private store: Store, private snackbar: MatSnackBar) {}
+
+  @HostListener('document:paste', ['$event'])
+  onPaste(event: ClipboardEvent): void {
+    if (location.hash !== '#fisiere') return;
+    const directFiles = Array.from(event.clipboardData?.files ?? []);
+    const itemFiles = Array.from(event.clipboardData?.items ?? [])
+      .filter((item) => item.kind === 'file')
+      .map((item) => item.getAsFile())
+      .filter((file): file is File => !!file);
+    const files = directFiles.length ? directFiles : itemFiles;
+    if (!files.length) return;
+    event.preventDefault();
+    this.uploadFiles(files);
+  }
 
   onDeleteFile(file: FileRecord): void {
     if (!confirm(`Ștergi definitiv fișierul „${file.name}”?`)) return;
@@ -84,7 +99,17 @@ export class FilesComponent {
     });
     forkJoin(uploads).pipe(
       finalize(() => this.store.dispatch(setLoading({ loading: false })))
-    ).subscribe({ error: (error) => console.error('File upload failed', error) });
+    ).subscribe({
+      next: () => this.snackbar.open(
+        files.length === 1 ? 'Fișierul a fost încărcat' : `${files.length} fișiere au fost încărcate`,
+        '',
+        { duration: 3000 }
+      ),
+      error: (error) => {
+        console.error('File upload failed', error);
+        this.snackbar.open('Fișierele nu au putut fi încărcate', 'Închide', { duration: 6000 });
+      }
+    });
   }
 
   private groupByWeek(files: FileRecord[]): FileWeek[] {
