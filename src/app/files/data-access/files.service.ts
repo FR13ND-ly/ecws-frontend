@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -51,6 +51,17 @@ export class FilesService {
   uploadFile(value: FormData): Observable<FileRecord> {
     return this.http.post<FileRecord>(this.apiUrl + 'uploadFile/', value).pipe(
       tap(() => this.reload())
+    );
+  }
+
+  uploadFileWithProgress(value: FormData): Observable<HttpEvent<FileRecord>> {
+    return this.http.post<FileRecord>(this.apiUrl + 'uploadFile/', value, {
+      observe: 'events',
+      reportProgress: true
+    }).pipe(
+      tap((event) => {
+        if (event.type === HttpEventType.Response) this.reload();
+      })
     );
   }
 
