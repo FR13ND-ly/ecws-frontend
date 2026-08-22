@@ -1,90 +1,155 @@
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { getDatabase, ref, update, push, onValue, get, remove } from "firebase/database";
-import { bindCallback, Observable, Subject } from 'rxjs';
+import { get, getDatabase, ref } from 'firebase/database';
+import { BehaviorSubject, Observable, catchError, forkJoin, from, map, of, switchMap } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
-@Injectable({
-  providedIn: 'root'
-})
+export interface Article {
+  id?: number;
+  firebaseId?: string;
+  title: string;
+  text: string;
+  details: string;
+  page: number;
+  col: number;
+  position: number;
+  files: string[];
+  date?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  archivedAt?: string | null;
+}
+
+@Injectable({ providedIn: 'root' })
 export class ArticlesService {
+  private readonly apiUrl = environment.apiURL + 'articles/';
+  private readonly migrationUrl = environment.apiURL + 'migration/firebase/';
+  private readonly articlesUpdated = new BehaviorSubject<Article[][]>([[], [], [], []]);
+  private readonly archiveUpdated = new BehaviorSubject<Article[]>([]);
+  private initialized = false;
+  private events?: EventSource;
 
-  constructor() { }
+  articles: Article[][] = [[], [], [], []];
 
-  private articlesUpdated = new Subject<[][]>()
+  constructor(private http: HttpClient) {}
 
-  private db = getDatabase();
-
-  articles: any = []
-
-  init() {
-    onValue(ref(this.db, 'articles'), (snapshot) => {
-      this.articlesUpdated.next([...this.resolveArticles(snapshot.val())])
-    })
-  }
-
-  resolveArticles(articlesRaw1 : any) : any {
-    let articles : any = [[], [], [], []]
-    let articlesRaw: any = []
-    if (articlesRaw1) {
-      Object.entries(articlesRaw1).map((article : any) => {
-        article[1].id = article[0]
-        article[1].files = article[1].files ?? []
-        articlesRaw.push(article[1])
-      })
-    }
-    articlesRaw.sort((a : any, b : any) => {
-      if (a.position < b.position) return -1
-      if (a.position > b.position) return 1
-      return 0
-    })
-    
-    articlesRaw.forEach((article : any)=> {
-      articles[article.col - 1].push(article)
-    }) 
-    this.articles = articles
-    return articles
-  }
-
-  getArticlesUpdateListener() {
-    return this.articlesUpdated.asObservable()
-  }
-
-  changeCol(data : any) {
-    data.order.forEach(async (article : any, index : number) => {
-      await update(ref(this.db, `articles/${article}`), {
-        col : data.col,
-        position : index
-      })
+  init(): void {
+    if (this.initialized) return;
+    this.initialized = true;
+    this.ensureFirebaseMigration().subscribe({
+      next: () => {
+        this.reload();
+        this.connectRealtime();
+      },
+      error: (error) => console.error('Article initialization failed', error)
     });
   }
 
-  addNewArticle(article : any) {
-    let date = new Date()
-    article.date = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`
-    article.position = this.articles[article.col - 1].length
-    push(ref(this.db, 'articles'), article)
+  getArticlesUpdateListener(): Observable<Article[][]> {
+    return this.articlesUpdated.asObservable();
   }
 
-  removeArticle(id : any) {
-    remove(ref(this.db, `articles/${id}`))
+  getArchiveUpdateListener(): Observable<Article[]> {
+    return this.archiveUpdated.asObservable();
   }
 
-  async updateArticle(article : any) {
-    await update(ref(this.db, `articles/${article.id}`), article)
+  reload(): void {
+    forkJoin({
+      active: this.http.get<Article[]>(this.apiUrl),
+      archived: this.http.get<Article[]>(this.apiUrl, {
+        params: new HttpParams().set('archived', true)
+      })
+    }).subscribe({
+      next: ({ active, archived }) => {
+        this.articles = this.resolveArticles(active);
+        this.articlesUpdated.next(this.articles);
+        this.archiveUpdated.next(archived);
+      },
+      error: (error) => console.error('Articles could not be loaded', error)
+    });
   }
 
-  async changeToSecondCol(id : any) {
-    await update(ref(this.db, `articles/${id}`), {
-      col : 2,
-      position : this.articles[1].length
-    })
+  changeCol(data: { col: number; order: number[] }): void {
+    this.http.post(this.apiUrl + 'reorder/', data).subscribe({
+      error: (error) => console.error('Article order could not be saved', error)
+    });
   }
 
-  changeEdition() {
-    this.articles[2].forEach((el : any) => {
-      this.removeArticle(el.id)
-    })
-    this.articles[1].forEach(async (el : any) => {
-      await update(ref(this.db, `articles/${el.id}`), {col : 3})
-    })
+  addNewArticle(article: Article): Observable<Article> {
+    article.position = this.articles[article.col - 1]?.length ?? 0;
+    return this.http.post<Article>(this.apiUrl, article);
+  }
+
+  archiveArticle(id: number): Observable<unknown> {
+    return this.http.post(`${this.apiUrl}${id}/archive/`, {});
+  }
+
+  restoreArticle(id: number): Observable<unknown> {
+    return this.http.post(`${this.apiUrl}${id}/restore/`, {});
+  }
+
+  updateArticle(article: Article): Observable<Article> {
+    return this.http.put<Article>(`${this.apiUrl}${article.id}/`, article);
+  }
+
+  changeToSecondCol(id: number): Observable<Article> {
+    const article = this.articles.flat().find((item) => item.id === id);
+    if (!article) throw new Error('Article not found');
+    return this.updateArticle({
+      ...article,
+      col: 2,
+      position: this.articles[1].length
+    });
+  }
+
+  changeEdition(): Observable<unknown> {
+    return this.http.post(this.apiUrl + 'next-edition/', {});
+  }
+
+  private resolveArticles(items: Article[]): Article[][] {
+    const lists: Article[][] = [[], [], [], []];
+    items.forEach((article) => {
+      if (article.col >= 1 && article.col <= 4) lists[article.col - 1].push(article);
+    });
+    lists.forEach((list) => list.sort((a, b) => a.position - b.position));
+    return lists;
+  }
+
+  private connectRealtime(): void {
+    this.events?.close();
+    this.events = new EventSource(environment.apiURL + 'events/');
+    this.events.onopen = () => this.reload();
+    this.events.onmessage = (event) => {
+      if (event.data === 'refresh' || event.data.startsWith('article.')) this.reload();
+    };
+    this.events.onerror = () => {
+      // EventSource reconnects automatically. Existing content remains usable.
+    };
+  }
+
+  private ensureFirebaseMigration(): Observable<unknown> {
+    return this.http.get<{ firebaseArticlesImported: boolean }>(this.migrationUrl).pipe(
+      switchMap((status) => {
+        if (status.firebaseArticlesImported) return of(status);
+        return from(get(ref(getDatabase(), 'articles'))).pipe(
+          map((snapshot) => {
+            const raw = snapshot.val() ?? {};
+            const articles = Object.entries(raw).map(([firebaseId, value]) => ({
+              ...(value as Article),
+              firebaseId,
+              files: (value as Article).files ?? [],
+              details: (value as Article).details ?? '',
+              position: (value as Article).position ?? 0
+            }));
+            return { articles };
+          }),
+          switchMap((payload) => this.http.post(this.migrationUrl, payload))
+        );
+      }),
+      catchError((error) => {
+        console.error('Firebase migration failed', error);
+        throw error;
+      })
+    );
   }
 }

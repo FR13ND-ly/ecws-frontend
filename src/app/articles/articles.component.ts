@@ -1,9 +1,9 @@
-import { Dialog } from '@angular/cdk/dialog';
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, map, combineLatest } from 'rxjs';
 import { ArticlesService } from './data-access/articles.service';
-import { SearchDialogComponent } from './feature/search-dialog/search-dialog.component';
+import { FormControl } from '@angular/forms';
+import { setSearchText } from '../state/search-text/search-text.actions';
 
 @Component({
   selector: 'app-articles',
@@ -12,7 +12,7 @@ import { SearchDialogComponent } from './feature/search-dialog/search-dialog.com
 })
 export class ArticlesComponent implements OnInit {
 
-  constructor(private articlesService: ArticlesService, private store : Store<any>, private dialog : Dialog) { }
+  constructor(private articlesService: ArticlesService, private store : Store<any>) { }
 
   articlesRaw$ = this.articlesService.getArticlesUpdateListener()
 
@@ -23,25 +23,30 @@ export class ArticlesComponent implements OnInit {
   )
 
   isDragging : boolean = false
+  search = new FormControl('', { nonNullable: true })
   ngOnInit(): void {
     this.articlesService.init()
+    this.search.valueChanges.subscribe((text) => this.store.dispatch(setSearchText({ text })))
   }
 
   nextEdition() {
-    this.articlesService.changeEdition()
+    if (!confirm('Începi o ediție nouă? Articolele publicate vor fi mutate în arhivă.')) return
+    this.articlesService.changeEdition().subscribe({
+      error: (error) => console.error('Edition could not be changed', error)
+    })
   }
 
   resolveFilter(lists : any, searchText : string) {
     if (!searchText?.trim()) return lists
     return lists.map((list : any) => list.filter((el : any) => {
-      if (searchText[0] == "#") return el.page == searchText[1]
-      return el.text?.includes(searchText)  ||
-             el.title?.includes(searchText) ||
-             el.details?.includes(searchText)
+      const pageMatch = searchText.match(/^#\s*(\d+)$/)
+      if (pageMatch) return el.page === Number(pageMatch[1])
+      const search = this.normalize(searchText)
+      return this.normalize(`${el.text ?? ''} ${el.title ?? ''} ${el.details ?? ''}`).includes(search)
     }))
   }
 
-  onOpenSearchDialog() {
-    this.dialog.open(SearchDialogComponent)
+  private normalize(value: string) {
+    return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim()
   }
 }

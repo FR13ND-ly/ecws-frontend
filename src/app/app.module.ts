@@ -15,8 +15,8 @@ import { FileDialogComponent } from './articles/feature/file-dialog/file-dialog.
 import { HttpClientModule } from '@angular/common/http';
 import { appState } from './state/app.state';
 import { StoreModule } from '@ngrx/store';
-import { SearchDialogComponent } from './articles/feature/search-dialog/search-dialog.component';
 import { HoroscopeComponent } from './horoscope/horoscope.component';
+import { ArchiveComponent } from './archive/archive.component';
 
 @NgModule({
   declarations: [
@@ -28,8 +28,8 @@ import { HoroscopeComponent } from './horoscope/horoscope.component';
     ListComponent,
     EditDialogComponent,
     FileDialogComponent,
-    SearchDialogComponent,
     HoroscopeComponent,
+    ArchiveComponent,
   ],
   imports: [
     BrowserModule,

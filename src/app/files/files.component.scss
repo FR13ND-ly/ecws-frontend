@@ -3,53 +3,94 @@
     width: 100%;
     padding: 1rem;
     box-sizing: border-box;
+    gap: .75rem;
+}
+
+.file-library {
+    position: relative;
+    width: 100%;
+    min-height: 65vh;
+    border: 2px dashed transparent;
+    border-radius: 12px;
+    transition: border-color .15s, background-color .15s;
+    &--dragging {
+        border-color: var(--primary-color);
+        background-color: color-mix(in srgb, var(--primary-color) 8%, transparent);
+    }
+}
+
+.drop-message {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     gap: .5rem;
+    border-radius: 10px;
+    color: var(--primary-color);
+    background: color-mix(in srgb, var(--background-color-2) 88%, transparent);
+    pointer-events: none;
+    mat-icon { transform: scale(1.5); }
+}
+
+.week { margin-bottom: 1.5rem; }
+.week__title {
+    margin: 0 0 .65rem;
+    color: var(--text-color);
+    font-size: 1.05rem;
+    font-weight: 500;
 }
 
 .files {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    width: 100%;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
     gap: 1rem;
 }
 
-.actions {
-    display: flex;
-}
+.actions { display: flex; }
 
 .file {
     display: flex;
     flex-direction: column;
-    border-radius: 6px;
-    align-items: flex-start;
+    border-radius: 8px;
     overflow: hidden;
     background-color: var(--background-color-2);
-    height: 240px;
-    cursor: pointer;
+    min-height: 230px;
     &__image-wrapper {
         width: 100%;
-        height: 100%;
+        height: 180px;
         position: relative;
         overflow: hidden;
     }
     &__image-actions {
         position: absolute;
-        right: 0;
+        z-index: 2;
+        top: .2rem;
+        right: .2rem;
     }
-    &__image-action {
-        transform: scale(.8);
-    }
+    &__image-action { transform: scale(.78); }
     &__image {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        overflow: hidden;
+        cursor: pointer;
     }
     &__content-wrapper {
-        padding: .5rem;
+        display: flex;
+        flex-direction: column;
+        gap: .25rem;
+        min-width: 0;
+        padding: .65rem;
+        color: var(--text-color);
+    }
+    &__name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 }
 
-.initial-size {
-    object-fit: contain;
-}
+.initial-size { object-fit: contain; }
+.empty-state { padding: 3rem; text-align: center; color: var(--text-color); }

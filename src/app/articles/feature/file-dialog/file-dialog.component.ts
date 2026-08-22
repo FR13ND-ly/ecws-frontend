@@ -22,7 +22,9 @@ export class FileDialogComponent {
     let file = event.target.files[0]
     let formData = new FormData()
     formData.append('file', file, file.name)
-    this.filesService.uploadFile(formData)
+    this.filesService.uploadFile(formData).subscribe({
+      error: (error) => console.error('File upload failed', error)
+    })
     event.target.value = null
   }
 

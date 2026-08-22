@@ -26,11 +26,11 @@ export class ListComponent {
                         event.previousIndex,
                         event.currentIndex);
     }
-    let order : string[] = []
-    event.container.data.forEach((el : any) => order.push(el['id']))
+    let order : number[] = []
+    event.container.data.forEach((el : any) => order.push(Number(el['id'])))
     let val = {
       order,
-      col : parseInt(event.container.id.slice(-1)) + 1
+      col : Number(this.col)
     }
     this.articlesService.changeCol(val)
   }

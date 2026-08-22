@@ -1,5 +1,6 @@
 :host {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto;
     gap: .5rem;
     padding: 1rem;
     box-sizing: border-box;
@@ -15,8 +16,14 @@
 .lists {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    
+    grid-template-columns: repeat(4, minmax(260px, 1fr));
     gap: 1rem;
     align-items: flex-start;
+    overflow-x: auto;
+    padding-bottom: .5rem;
+}
+
+.workspace-toolbar {
+    grid-column: 1 / -1;
+    mat-form-field { width: min(100%, 620px); }
 }

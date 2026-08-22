@@ -1,0 +1,27 @@
+<section class="archive">
+    <mat-form-field appearance="outline" class="archive__search">
+        <mat-label>Caută în arhivă</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [formControl]="search" placeholder="Titlu, text, detalii sau pagină">
+    </mat-form-field>
+
+    <ng-container *ngIf="weeks$ | async as weeks">
+        <section class="week" *ngFor="let week of weeks">
+            <h2>{{ week.label }}</h2>
+            <div class="week__articles">
+                <article class="archived-article mat-elevation-z1" *ngFor="let article of week.articles">
+                    <div>
+                        <small>pag. {{ article.page }} · {{ article.date }}</small>
+                        <h3>{{ article.title }}</h3>
+                        <p>{{ article.details || article.text }}</p>
+                    </div>
+                    <div class="archived-article__actions">
+                        <button mat-icon-button aria-label="Copiază articolul ca JSON" (click)="copyJson(article)"><mat-icon>data_object</mat-icon></button>
+                        <button mat-icon-button color="primary" aria-label="Restaurează articolul" (click)="restore(article)"><mat-icon>restore</mat-icon></button>
+                    </div>
+                </article>
+            </div>
+        </section>
+        <div class="empty-state" *ngIf="!weeks.length">Arhiva este goală.</div>
+    </ng-container>
+</section>

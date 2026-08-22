@@ -42,6 +42,9 @@ export class AppComponent implements OnInit {
       this.selectedIndex = 2
     }
     else if (location.hash == "#horoscop") {
+      this.selectedIndex = 4
+    }
+    else if (location.hash == "#arhiva") {
       this.selectedIndex = 3
     }
   }
@@ -63,20 +66,20 @@ export class AppComponent implements OnInit {
 
   changeMenu(index: any){
     if (index == 0) {
-      location.href = location.origin + '#articole'
+      history.replaceState(null, '', '#articole')
     }
     else if (index == 1){
-      location.href = location.origin + '#pagini'  
+      history.replaceState(null, '', '#pagini')
       this.pagesService.setUpdated(false)
     }
     else if (index == 2) {
-      location.href = location.origin + '#fisiere'  
+      history.replaceState(null, '', '#fisiere')
     }
     else if (index == 3) {
-      location.href = location.origin + '#avize'  
+      history.replaceState(null, '', '#arhiva')
     }
     else if (index == 4) {
-      location.href = location.origin + '#horoscop'  
+      history.replaceState(null, '', '#horoscop')
     }
   }
 }

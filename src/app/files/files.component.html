@@ -1,19 +1,38 @@
-
-<div class="files" *ngIf="files$ | async as files">
-    <div class="file mat-elevation-z2" *ngFor="let file of files">
-        <div class="file__image-wrapper">
-            <div class="file__image-actions">
-                <button (click)="onDownloadFile(file)" class="file__image-action" mat-mini-fab color="accent"><mat-icon>download</mat-icon></button>
-                <button (click)="onDeleteFile(file)" class="file__image-action" mat-mini-fab color="warn"><mat-icon>delete</mat-icon></button>
-            </div>
-            <img (click)="toggleSize(file)" class="file__image" [class.initial-size]="file.initialSize" [src]="file.pdf ? pdfImageUrl : file.imageUrl">
-        </div>
-        <div class="file__content-wrapper">
-            <span class="file__name">{{ file.name }}</span>
-        </div>
+<section
+    class="file-library"
+    [class.file-library--dragging]="dragging"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)">
+    <div class="drop-message" *ngIf="dragging">
+        <mat-icon>cloud_upload</mat-icon>
+        <strong>Lasă fișierele aici</strong>
     </div>
-</div>
+
+    <ng-container *ngIf="weeks$ | async as weeks">
+        <section class="week" *ngFor="let week of weeks">
+            <h2 class="week__title">{{ week.label }}</h2>
+            <div class="files">
+                <article class="file mat-elevation-z2" *ngFor="let file of week.files">
+                    <div class="file__image-wrapper">
+                        <div class="file__image-actions">
+                            <button aria-label="Descarcă fișierul" (click)="onDownloadFile(file)" class="file__image-action" mat-mini-fab color="accent"><mat-icon>download</mat-icon></button>
+                            <button aria-label="Șterge fișierul" (click)="onDeleteFile(file)" class="file__image-action" mat-mini-fab color="warn"><mat-icon>delete</mat-icon></button>
+                        </div>
+                        <img [alt]="file.name" (click)="toggleSize(file)" class="file__image" [class.initial-size]="file.initialSize" [src]="file.pdf ? pdfImageUrl : file.imageUrl">
+                    </div>
+                    <div class="file__content-wrapper">
+                        <span class="file__name">{{ file.name }}</span>
+                        <small>{{ file.date }}</small>
+                    </div>
+                </article>
+            </div>
+        </section>
+        <div class="empty-state" *ngIf="!weeks.length">Trage primele fișiere aici sau folosește butonul de încărcare.</div>
+    </ng-container>
+</section>
+
 <div class="actions">
-    <input (change)="onUploadFile($event)" type="file" style="display: none;" #fileInput>
-    <button (click)="fileInput.click()" mat-mini-fab color="primary"><mat-icon>upload</mat-icon></button>
+    <input (change)="onUploadFile($event)" type="file" multiple style="display: none;" #fileInput>
+    <button aria-label="Încarcă fișiere" (click)="fileInput.click()" mat-mini-fab color="primary"><mat-icon>upload</mat-icon></button>
 </div>

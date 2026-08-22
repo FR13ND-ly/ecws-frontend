@@ -1,51 +1,62 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { getDatabase, onValue, push, ref, remove, update } from 'firebase/database';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { BehaviorSubject } from 'rxjs'
 
-@Injectable({
-  providedIn: 'root'
-})
+export interface FileRecord {
+  id: number;
+  imageUrl: string;
+  name: string;
+  date: string;
+  createdAt: string;
+  pdf?: boolean;
+  initialSize?: boolean;
+}
+
+@Injectable({ providedIn: 'root' })
 export class FilesService {
+  private readonly apiUrl = environment.apiURL + 'files/';
+  private readonly filesUpdated = new BehaviorSubject<FileRecord[]>([]);
+  private initialized = false;
+  private events?: EventSource;
 
-  constructor(private http : HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  readonly APIUrl = environment.apiURL + "files/"
-
-  private filesUpdated = new BehaviorSubject<[]>([])
-
-  private db = getDatabase();
-
-  init() {
-    onValue(ref(this.db, 'files'), (snapshot : any) => {
-      let filesRaw = snapshot.val()
-      if (filesRaw) {
-        let files : any = Object.entries(filesRaw).map((file : any) => {
-          file[1].fireId = file[0]
-          file[1].pdf = file[1].imageUrl.slice(-3) == 'pdf'
-          file[1].initialSize = false
-          return file[1]
-        })
-        this.filesUpdated.next(files.reverse())
-      }
-      else this.filesUpdated.next([])
-    })
+  init(): void {
+    if (this.initialized) return;
+    this.initialized = true;
+    this.reload();
+    this.events = new EventSource(environment.apiURL + 'events/');
+    this.events.onopen = () => this.reload();
+    this.events.onmessage = (event) => {
+      if (event.data === 'refresh' || event.data.startsWith('file.')) this.reload();
+    };
   }
 
-  getFilesUpdateListener() {
-    return this.filesUpdated.asObservable()
+  getFilesUpdateListener(): Observable<FileRecord[]> {
+    return this.filesUpdated.asObservable();
   }
 
-  uploadFile(val : any) {
-    this.http.post(this.APIUrl + 'uploadFile/', val).subscribe((res : any) => {
-      push(ref(this.db, 'files'), res)
-    })
+  reload(): void {
+    this.http.get<FileRecord[]>(this.apiUrl).subscribe({
+      next: (files) => this.filesUpdated.next(files.map((file) => ({
+        ...file,
+        pdf: file.name.toLowerCase().endsWith('.pdf'),
+        initialSize: false
+      }))),
+      error: (error) => console.error('Files could not be loaded', error)
+    });
   }
 
-  deleteFile(val : any) {
-    this.http.get(`${this.APIUrl}removeFile/${val.id}/`).subscribe((res : any) => {
-      remove(ref(this.db, `files/${val.fireId}`))
-    })
+  uploadFile(value: FormData): Observable<FileRecord> {
+    return this.http.post<FileRecord>(this.apiUrl + 'uploadFile/', value).pipe(
+      tap(() => this.reload())
+    );
+  }
+
+  deleteFile(value: FileRecord): Observable<unknown> {
+    return this.http.delete(`${this.apiUrl}removeFile/${value.id}/`).pipe(
+      tap(() => this.reload())
+    );
   }
 }

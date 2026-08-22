@@ -1,54 +1,54 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { getDatabase, onValue, ref, update } from 'firebase/database';
-import { map, Subject, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { BehaviorSubject } from 'rxjs'
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class PagesService {
+  private readonly apiUrl = environment.apiURL + 'pages/';
+  private readonly pagesUpdated = new BehaviorSubject<string[]>([]);
+  private initialized = false;
+  private events?: EventSource;
 
-  constructor(private http : HttpClient) { }
+  readonly updated$ = new BehaviorSubject(
+    localStorage.getItem('pagesUpdated') === 'true'
+  );
 
-  readonly APIUrl = environment.apiURL + "pages/"
+  constructor(private http: HttpClient) {}
 
-  private pagesUpdated = new Subject<[]>()
-
-  updated$ = new BehaviorSubject(
-    localStorage.getItem('pagesUpdated') == 'true'
-  )
-
-  private db = getDatabase();
-
-  pagesId : any = []
-
-  init() {
-    onValue(ref(this.db, 'pages'), (snapshot : any) => {
-      this.pagesUpdated.next(snapshot.val())
-    })
+  init(): void {
+    if (this.initialized) return;
+    this.initialized = true;
+    this.reload();
+    this.events = new EventSource(environment.apiURL + 'events/');
+    this.events.onopen = () => this.reload();
+    this.events.onmessage = (event) => {
+      if (event.data === 'refresh' || event.data.startsWith('pages.')) {
+        this.reload();
+        this.setUpdated(true);
+      }
+    };
   }
 
-  getPagesUpdateListener() {
-    return this.pagesUpdated.asObservable().pipe(
-      tap((res : any) => this.pagesId = Object.keys(res)),
-      map((res : any) => Object.values(res).map((res : any) => res.imageUrl))
-    )
+  getPagesUpdateListener(): Observable<string[]> {
+    return this.pagesUpdated.asObservable();
   }
 
-  setPages(val : any) {
-    return this.http.post(this.APIUrl + 'setPages/', val).pipe(
-      tap((res : any) => {
-        this.pagesId.forEach(async (el : any, i : number) => {
-          await update(ref(this.db, `pages/${el}`), { imageUrl : res[i] })
-        })
-      })
-    )
+  setPages(value: FormData): Observable<string[]> {
+    return this.http.post<string[]>(this.apiUrl + 'setPages/', value).pipe(
+      tap((pages) => this.pagesUpdated.next(pages))
+    );
   }
 
-  setUpdated(value: boolean) {
-    this.updated$.next(value)
-    localStorage.setItem('pagesUpdated', value.toString())
+  setUpdated(value: boolean): void {
+    this.updated$.next(value);
+    localStorage.setItem('pagesUpdated', value.toString());
+  }
+
+  private reload(): void {
+    this.http.get<{ pages: string[] }>(this.apiUrl + 'getPages/').subscribe({
+      next: ({ pages }) => this.pagesUpdated.next(pages),
+      error: (error) => console.error('Pages could not be loaded', error)
+    });
   }
 }

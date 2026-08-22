@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { PagesService } from './data-access/pages.service';
-import { Observable, catchError, tap } from 'rxjs'
+import { EMPTY, Observable, catchError, tap } from 'rxjs'
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
 import { setLoading } from '../state/loading/loading.actions';
@@ -41,12 +41,17 @@ export class PagesComponent implements OnInit {
   onSetPages(event : any) {
     this.store.dispatch(setLoading({ loading : true }))
     let file = event.target.files[0]
+    if (!file) {
+      this.store.dispatch(setLoading({ loading : false }))
+      return
+    }
     let formData = new FormData()
     formData.append('file', file, file.name)
     this.pagesService.setPages(formData).pipe(
-      catchError(() : any => {
+      catchError(() => {
         this.store.dispatch(setLoading({ loading : false }))
         this.snackbar.open("Ceva a mers greșit", "Închide")
+        return EMPTY
       })
     )
     .subscribe((res) => {

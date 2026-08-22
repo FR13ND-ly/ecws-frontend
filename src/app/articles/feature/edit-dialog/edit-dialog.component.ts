@@ -2,7 +2,7 @@ import { Dialog, DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup} from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { filter, map, tap } from 'rxjs';
+import { debounceTime, filter } from 'rxjs';
 import { ArticlesService } from '../../data-access/articles.service';
 import { FileDialogComponent } from '../file-dialog/file-dialog.component';
 
@@ -29,6 +29,7 @@ export class EditDialogComponent implements OnInit {
   ngOnInit() {
     this.articleForm.valueChanges.pipe(
       filter(() => !this.data.new),
+      debounceTime(500),
     )
     .subscribe(() => this.onSubmit())
   }
@@ -45,12 +46,17 @@ export class EditDialogComponent implements OnInit {
     article.text = article.text.trim()
     if (this.articleForm.valid) {
       if (this.data.new) {
-        this.articlesService.addNewArticle(article)
-        this.dialogRef.close()
+        this.articlesService.addNewArticle(article).subscribe({
+          next: () => this.dialogRef.close(),
+          error: (error) => console.error('Article creation failed', error)
+        })
       }
       else {
         article.id = this.data.id
-        this.articlesService.updateArticle(article)
+        article.position = this.data.position ?? 0
+        this.articlesService.updateArticle(article).subscribe({
+          error: (error) => console.error('Article update failed', error)
+        })
       }
     }
   }
@@ -70,14 +76,18 @@ export class EditDialogComponent implements OnInit {
   }
 
   onResolve() {
-    this.articlesService.changeToSecondCol(this.data.id)
-    this.dialogRef.close()
+    this.articlesService.changeToSecondCol(this.data.id).subscribe({
+      next: () => this.dialogRef.close(),
+      error: (error) => console.error('Article transition failed', error)
+    })
   }
 
   onRemoveArticle() {
     if (!confirm("Ești sigur?")) return
-    this.articlesService.removeArticle(this.data.id)
-    this.dialogRef.close()
+    this.articlesService.archiveArticle(this.data.id).subscribe({
+      next: () => this.dialogRef.close(),
+      error: (error) => console.error('Article archive failed', error)
+    })
   }
 
   onClose() {
