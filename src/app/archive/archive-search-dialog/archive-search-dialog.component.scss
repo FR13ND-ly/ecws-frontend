@@ -1,0 +1,10 @@
+.search-dialog { padding: 1.25rem; color: var(--text-color); background: var(--background-color-2); border-radius: 8px; }
+header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    span { color: var(--accent-color); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; }
+    h2 { margin: .2rem 0 0; }
+}
+mat-form-field { width: 100%; }

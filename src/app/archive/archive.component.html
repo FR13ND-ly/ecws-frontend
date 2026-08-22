@@ -1,27 +1,44 @@
 <section class="archive">
-    <mat-form-field appearance="outline" class="archive__search">
-        <mat-label>Caută în arhivă</mat-label>
-        <mat-icon matPrefix>search</mat-icon>
-        <input matInput [formControl]="search" placeholder="Titlu, text, detalii sau pagină">
-    </mat-form-field>
+    <header class="archive__header">
+        <div>
+            <span class="eyebrow">Biblioteca editorială</span>
+            <h1>Arhivă</h1>
+            <p *ngIf="filteredArticles$ | async as articles">
+                {{ articles.length }} {{ articles.length === 1 ? 'articol' : 'articole' }}
+                <ng-container *ngIf="search.value"> găsite pentru „{{ search.value }}”</ng-container>
+            </p>
+        </div>
+        <button mat-stroked-button color="primary" (click)="openSearch()">
+            <mat-icon>{{ search.value ? 'manage_search' : 'search' }}</mat-icon>
+            {{ search.value ? 'Modifică căutarea' : 'Caută' }}
+        </button>
+    </header>
 
     <ng-container *ngIf="weeks$ | async as weeks">
         <section class="week" *ngFor="let week of weeks">
-            <h2>{{ week.label }}</h2>
+            <header class="week__header">
+                <h2>{{ week.label }}</h2>
+                <span>{{ week.articles.length }}</span>
+            </header>
             <div class="week__articles">
-                <article class="archived-article mat-elevation-z1" *ngFor="let article of week.articles">
-                    <div>
+                <article class="archived-article mat-elevation-z1" tabindex="0" (click)="openArticle(article)" (keydown.enter)="openArticle(article)" *ngFor="let article of week.articles">
+                    <div class="archived-article__content">
                         <small>pag. {{ article.page }} · {{ article.date }}</small>
                         <h3>{{ article.title }}</h3>
                         <p>{{ article.details || article.text }}</p>
                     </div>
                     <div class="archived-article__actions">
-                        <button mat-icon-button aria-label="Copiază articolul ca JSON" (click)="copyJson(article)"><mat-icon>data_object</mat-icon></button>
-                        <button mat-icon-button color="primary" aria-label="Restaurează articolul" (click)="restore(article)"><mat-icon>restore</mat-icon></button>
+                        <span *ngIf="article.files.length"><mat-icon>collections</mat-icon>{{ article.files.length }}</span>
+                        <button mat-icon-button aria-label="Copiază articolul ca JSON" matTooltip="Copiază JSON" (click)="copyJson(article, $event)"><mat-icon>data_object</mat-icon></button>
+                        <button mat-icon-button color="primary" aria-label="Restaurează articolul" matTooltip="Restaurează" (click)="restore(article, $event)"><mat-icon>restore</mat-icon></button>
                     </div>
                 </article>
             </div>
         </section>
-        <div class="empty-state" *ngIf="!weeks.length">Arhiva este goală.</div>
+        <div class="empty-state" *ngIf="!weeks.length">
+            <mat-icon>{{ search.value ? 'search_off' : 'inventory_2' }}</mat-icon>
+            <strong>{{ search.value ? 'Nu am găsit articole' : 'Arhiva este goală' }}</strong>
+            <button *ngIf="search.value" mat-button color="primary" (click)="clearSearch()">Șterge căutarea</button>
+        </div>
     </ng-container>
 </section>

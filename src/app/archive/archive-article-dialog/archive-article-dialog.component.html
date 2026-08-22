@@ -1,0 +1,37 @@
+<article class="article-dialog">
+    <header class="article-dialog__header">
+        <div>
+            <span>Articol arhivat · pagina {{ article.page }}</span>
+            <h1>{{ article.title || 'Fără titlu' }}</h1>
+            <small>{{ article.date }}<ng-container *ngIf="article.archivedAt"> · arhivat {{ article.archivedAt | date:'dd.MM.yyyy, HH:mm' }}</ng-container></small>
+        </div>
+        <button mat-icon-button aria-label="Închide" (click)="close()"><mat-icon>close</mat-icon></button>
+    </header>
+
+    <div class="article-dialog__body">
+        <section *ngIf="article.details" class="details">
+            <h2>Detalii editoriale</h2>
+            <p>{{ article.details }}</p>
+        </section>
+        <section class="text">
+            <h2>Textul articolului</h2>
+            <p>{{ article.text || 'Articolul nu conține text.' }}</p>
+        </section>
+        <section *ngIf="article.files.length" class="attachments">
+            <h2>Fișiere atașate · {{ article.files.length }}</h2>
+            <div class="attachments__grid">
+                <a *ngFor="let file of article.files; let i = index" [href]="file" target="_blank" rel="noopener">
+                    <ng-container *ngIf="!isPdf(file); else pdfFile">
+                        <img [src]="file" [alt]="'Fișier atașat ' + (i + 1)">
+                    </ng-container>
+                    <ng-template #pdfFile><mat-icon>picture_as_pdf</mat-icon><span>Deschide PDF</span></ng-template>
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <footer class="article-dialog__actions">
+        <button mat-button type="button" (click)="copyJson()"><mat-icon>data_object</mat-icon>Copiază JSON</button>
+        <button mat-raised-button color="primary" type="button" (click)="restore()"><mat-icon>restore</mat-icon>Restaurează articolul</button>
+    </footer>
+</article>

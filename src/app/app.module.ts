@@ -18,6 +18,8 @@ import { StoreModule } from '@ngrx/store';
 import { HoroscopeComponent } from './horoscope/horoscope.component';
 import { ArchiveComponent } from './archive/archive.component';
 import { SearchDialogComponent } from './articles/feature/search-dialog/search-dialog.component';
+import { ArchiveArticleDialogComponent } from './archive/archive-article-dialog/archive-article-dialog.component';
+import { ArchiveSearchDialogComponent } from './archive/archive-search-dialog/archive-search-dialog.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +34,8 @@ import { SearchDialogComponent } from './articles/feature/search-dialog/search-d
     HoroscopeComponent,
     ArchiveComponent,
     SearchDialogComponent,
+    ArchiveArticleDialogComponent,
+    ArchiveSearchDialogComponent,
   ],
   imports: [
     BrowserModule,

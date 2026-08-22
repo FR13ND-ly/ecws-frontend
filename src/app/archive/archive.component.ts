@@ -1,7 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { Dialog } from '@angular/cdk/dialog';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormControl } from '@angular/forms';
 import { combineLatest, map, startWith } from 'rxjs';
 import { Article, ArticlesService } from '../articles/data-access/articles.service';
+import { ArchiveArticleDialogComponent } from './archive-article-dialog/archive-article-dialog.component';
+import { ArchiveSearchDialogComponent } from './archive-search-dialog/archive-search-dialog.component';
 
 interface ArchiveWeek {
   key: string;
@@ -16,30 +21,55 @@ interface ArchiveWeek {
 })
 export class ArchiveComponent implements OnInit {
   readonly search = new FormControl('', { nonNullable: true });
-  readonly weeks$ = combineLatest([
+  readonly filteredArticles$ = combineLatest([
     this.articlesService.getArchiveUpdateListener(),
     this.search.valueChanges.pipe(startWith(''))
   ]).pipe(
-    map(([articles, search]) => this.groupByWeek(
-      articles.filter((article) => this.matches(article, search))
-    ))
+    map(([articles, search]) => articles.filter((article) => this.matches(article, search)))
   );
+  readonly weeks$ = this.filteredArticles$.pipe(map((articles) => this.groupByWeek(articles)));
 
-  constructor(private articlesService: ArticlesService) {}
+  constructor(
+    private articlesService: ArticlesService,
+    private dialog: Dialog,
+    private matDialog: MatDialog,
+    private snackbar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
     this.articlesService.init();
   }
 
-  restore(article: Article): void {
+  openArticle(article: Article): void {
+    this.dialog.open(ArchiveArticleDialogComponent, { data: article });
+  }
+
+  openSearch(): void {
+    this.matDialog.open(ArchiveSearchDialogComponent, {
+      data: this.search,
+      width: 'min(92vw, 560px)',
+      autoFocus: 'input'
+    });
+  }
+
+  clearSearch(): void {
+    this.search.setValue('');
+  }
+
+  restore(article: Article, event?: Event): void {
+    event?.stopPropagation();
     if (article.id == null) return;
     this.articlesService.restoreArticle(article.id).subscribe({
+      next: () => this.snackbar.open('Articolul a fost restaurat', '', { duration: 3000 }),
       error: (error) => console.error('Article restore failed', error)
     });
   }
 
-  copyJson(article: Article): void {
-    navigator.clipboard.writeText(JSON.stringify(article, null, 2));
+  copyJson(article: Article, event?: Event): void {
+    event?.stopPropagation();
+    navigator.clipboard.writeText(JSON.stringify(article, null, 2)).then(() => {
+      this.snackbar.open('JSON copiat', '', { duration: 2200 });
+    });
   }
 
   private matches(article: Article, rawSearch: string): boolean {
