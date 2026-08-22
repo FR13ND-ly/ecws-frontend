@@ -35,10 +35,13 @@ export class AppComponent implements OnInit {
       this.selectedIndex = 2
     }
     else if (location.hash == "#horoscop") {
-      this.selectedIndex = 4
+      this.selectedIndex = 5
     }
     else if (location.hash == "#arhiva") {
       this.selectedIndex = 3
+    }
+    else if (location.hash == "#rss") {
+      this.selectedIndex = 4
     }
   }
 
@@ -58,7 +61,7 @@ export class AppComponent implements OnInit {
   }
 
   changeMenu(index: number){
-    const hashes = ['#articole', '#pagini', '#fisiere', '#arhiva', '#horoscop']
+    const hashes = ['#articole', '#pagini', '#fisiere', '#arhiva', '#rss', '#horoscop']
     if (hashes[index]) history.replaceState(null, '', hashes[index])
   }
 }

@@ -1,0 +1,10 @@
+:host { display: block; width: min(900px, 92vw); height: min(88vh, 900px); overflow: hidden; color: var(--text-color); background: var(--background-color-2); border-radius: 10px; }
+.rss-dialog { display: flex; flex-direction: column; height: 100%; }
+.rss-dialog > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1.25rem 1.4rem 1rem; border-bottom: 1px solid var(--placeholder-border-color); }
+.rss-dialog > header span { color: var(--primary-color); font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.rss-dialog > header h1 { margin: .3rem 0; font-size: 1.45rem; line-height: 1.3; }
+.rss-dialog > header small { opacity: .62; }
+.rss-dialog__body { flex: 1; padding: 1.4rem; overflow-y: auto; }
+.rss-dialog__body p { margin: 0; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+.rss-dialog > footer { display: flex; justify-content: flex-end; gap: .5rem; padding: .85rem 1.25rem; border-top: 1px solid var(--placeholder-border-color); background: var(--background-color-3); }
+@media (max-width: 640px) { :host { width: 96vw; height: 92vh; } .rss-dialog > header, .rss-dialog__body { padding-left: 1rem; padding-right: 1rem; } .rss-dialog > footer { align-items: stretch; flex-direction: column; } }

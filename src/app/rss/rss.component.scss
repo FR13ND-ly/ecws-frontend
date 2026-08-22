@@ -1,0 +1,27 @@
+:host { display: block; width: 100%; padding: 1rem; box-sizing: border-box; color: var(--text-color); }
+.rss { width: 100%; }
+.rss__header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.rss__header h1 { margin: .15rem 0; font-size: 1.55rem; }
+.rss__header p { margin: 0; opacity: .65; }
+.rss__header-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; }
+.eyebrow { color: var(--primary-color); font-size: .72rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.rss__filters { display: flex; align-items: center; gap: .75rem; min-height: 42px; margin-bottom: .75rem; }
+.rss__filters > span { display: flex; align-items: center; padding-left: .75rem; border-left: 1px solid var(--placeholder-border-color); opacity: .72; }
+.rss-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: .8rem; }
+.rss-card { display: flex; flex-direction: column; min-height: 220px; padding: 1rem; border-radius: 8px; background: var(--background-color-2); cursor: pointer; transition: transform .15s, box-shadow .15s; }
+.rss-card:hover, .rss-card:focus-visible { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,.18); outline: none; }
+.rss-card > header { display: flex; justify-content: space-between; gap: .75rem; font-size: .75rem; }
+.rss-card > header span { color: var(--primary-color); font-weight: 600; }
+.rss-card > header time { opacity: .58; }
+.rss-card h2 { margin: .55rem 0 .4rem; font-size: 1.05rem; line-height: 1.35; }
+.rss-card p { display: -webkit-box; flex: 1; margin: 0; overflow: hidden; opacity: .74; line-height: 1.45; -webkit-line-clamp: 4; -webkit-box-orient: vertical; }
+.rss-card footer { display: flex; align-items: center; min-height: 42px; margin-top: .65rem; padding-top: .35rem; border-top: 1px solid var(--placeholder-border-color); }
+.rss-card footer > span { flex: 1; overflow: hidden; opacity: .6; font-size: .75rem; text-overflow: ellipsis; white-space: nowrap; }
+.empty-state { display: flex; flex-direction: column; align-items: center; gap: .4rem; padding: 5rem 1rem; opacity: .65; }
+@media (max-width: 720px) {
+    :host { padding: .75rem; }
+    .rss__header { align-items: flex-start; flex-direction: column; }
+    .rss__header-actions { width: 100%; justify-content: stretch; }
+    .rss__header-actions button { flex: 1; }
+    .rss-grid { grid-template-columns: 1fr; }
+}

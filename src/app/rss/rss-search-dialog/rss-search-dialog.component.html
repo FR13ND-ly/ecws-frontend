@@ -1,0 +1,12 @@
+<section class="search-dialog">
+    <header>
+        <div><span>Inbox editorial</span><h2>Caută în flux</h2></div>
+        <button mat-icon-button aria-label="Închide" (click)="close()"><mat-icon>close</mat-icon></button>
+    </header>
+    <mat-form-field appearance="outline">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [formControl]="search" placeholder="Subiect, sursă sau cuvinte-cheie">
+        <button *ngIf="search.value" matSuffix mat-icon-button aria-label="Șterge căutarea" (click)="clear()"><mat-icon>backspace</mat-icon></button>
+        <mat-hint>Rezultatele se filtrează în timp real</mat-hint>
+    </mat-form-field>
+</section>

@@ -1,0 +1,15 @@
+<section class="sources-dialog">
+    <header><div><span>Configurare</span><h2>Surse RSS</h2></div><button mat-icon-button aria-label="Închide" (click)="close()"><mat-icon>close</mat-icon></button></header>
+    <form (ngSubmit)="add()" class="source-form">
+        <mat-form-field appearance="outline"><mat-label>Publicația</mat-label><input matInput [formControl]="name" placeholder="Ex: IPN"></mat-form-field>
+        <mat-form-field appearance="outline"><mat-label>URL RSS sau Atom</mat-label><input matInput [formControl]="url" placeholder="https://exemplu.md/feed"></mat-form-field>
+        <button mat-raised-button color="primary" [disabled]="name.invalid || url.invalid || saving"><mat-icon>add</mat-icon>Adaugă</button>
+    </form>
+    <div class="sources" *ngIf="sources$ | async as sources">
+        <article *ngFor="let source of sources">
+            <mat-icon [class.source-error]="source.lastError">{{ source.lastError ? 'error_outline' : 'rss_feed' }}</mat-icon>
+            <div><strong>{{ source.name }}</strong><a [href]="source.url" target="_blank" rel="noopener">{{ source.url }}</a><small *ngIf="source.lastError">{{ source.lastError }}</small></div>
+            <button mat-icon-button color="warn" aria-label="Elimină sursa" (click)="remove(source)"><mat-icon>delete</mat-icon></button>
+        </article>
+    </div>
+</section>

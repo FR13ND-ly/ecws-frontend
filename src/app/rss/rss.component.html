@@ -1,0 +1,47 @@
+<section class="rss">
+    <header class="rss__header">
+        <div>
+            <span class="eyebrow">Monitorizare editorială</span>
+            <h1>Flux RSS</h1>
+            <p *ngIf="items$ | async as items">{{ items.length }} știri în inbox</p>
+        </div>
+        <div class="rss__header-actions">
+            <button mat-stroked-button (click)="openSearch()"><mat-icon>search</mat-icon>Caută</button>
+            <button mat-stroked-button (click)="openSources()"><mat-icon>rss_feed</mat-icon>Surse</button>
+            <button mat-raised-button color="primary" (click)="refresh()" [disabled]="refreshing">
+                <mat-icon>{{ refreshing ? 'sync' : 'refresh' }}</mat-icon>{{ refreshing ? 'Se actualizează…' : 'Actualizează' }}
+            </button>
+        </div>
+    </header>
+
+    <div class="rss__filters" *ngIf="sources$ | async as sources">
+        <button mat-button [matMenuTriggerFor]="sourceMenu">
+            <mat-icon>filter_alt</mat-icon>{{ sourceLabel(sources) }}<mat-icon>expand_more</mat-icon>
+        </button>
+        <span *ngIf="search.value">„{{ search.value }}” <button mat-icon-button aria-label="Șterge căutarea" (click)="search.setValue('')"><mat-icon>close</mat-icon></button></span>
+        <mat-menu #sourceMenu="matMenu">
+            <button mat-menu-item (click)="selectSource(null)">Toate sursele</button>
+            <button mat-menu-item *ngFor="let source of sources" (click)="selectSource(source.id)">{{ source.name }}</button>
+        </mat-menu>
+    </div>
+
+    <ng-container *ngIf="items$ | async as items">
+        <div class="rss-grid">
+            <article class="rss-card mat-elevation-z1" tabindex="0" *ngFor="let item of items" (click)="openItem(item)" (keydown.enter)="openItem(item)">
+                <header><span>{{ item.sourceName }}</span><time>{{ itemDate(item) }}</time></header>
+                <h2>{{ item.title }}</h2>
+                <p>{{ preview(item) }}</p>
+                <footer>
+                    <span>{{ item.author || 'Redacția' }}</span>
+                    <button mat-icon-button matTooltip="Copiază ca JSON" aria-label="Copiază ca JSON" (click)="copyJson(item, $event)"><mat-icon>data_object</mat-icon></button>
+                    <a mat-icon-button matTooltip="Deschide sursa" aria-label="Deschide sursa" [href]="item.url" target="_blank" rel="noopener" (click)="$event.stopPropagation()"><mat-icon>open_in_new</mat-icon></a>
+                </footer>
+            </article>
+        </div>
+        <div class="empty-state" *ngIf="!items.length">
+            <mat-icon>rss_feed</mat-icon>
+            <strong>Inboxul RSS este gol</strong>
+            <span>Actualizează fluxul sau verifică sursele configurate.</span>
+        </div>
+    </ng-container>
+</section>

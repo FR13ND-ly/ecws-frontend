@@ -20,6 +20,10 @@ import { ArchiveComponent } from './archive/archive.component';
 import { SearchDialogComponent } from './articles/feature/search-dialog/search-dialog.component';
 import { ArchiveArticleDialogComponent } from './archive/archive-article-dialog/archive-article-dialog.component';
 import { ArchiveSearchDialogComponent } from './archive/archive-search-dialog/archive-search-dialog.component';
+import { RssComponent } from './rss/rss.component';
+import { RssItemDialogComponent } from './rss/rss-item-dialog/rss-item-dialog.component';
+import { RssSearchDialogComponent } from './rss/rss-search-dialog/rss-search-dialog.component';
+import { RssSourcesDialogComponent } from './rss/rss-sources-dialog/rss-sources-dialog.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +40,10 @@ import { ArchiveSearchDialogComponent } from './archive/archive-search-dialog/ar
     SearchDialogComponent,
     ArchiveArticleDialogComponent,
     ArchiveSearchDialogComponent,
+    RssComponent,
+    RssItemDialogComponent,
+    RssSearchDialogComponent,
+    RssSourcesDialogComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,13 @@
+.sources-dialog { padding: 1.25rem; color: var(--text-color); background: var(--background-color-2); border-radius: 8px; }
+.sources-dialog > header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; }
+.sources-dialog > header span { color: var(--accent-color); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; }
+.sources-dialog > header h2 { margin: .2rem 0 0; }
+.source-form { display: grid; grid-template-columns: minmax(130px, .6fr) minmax(220px, 1.4fr) auto; gap: .6rem; align-items: start; }
+.source-form button { margin-top: .25rem; }
+.sources { display: grid; max-height: 50vh; overflow-y: auto; border-top: 1px solid var(--placeholder-border-color); }
+.sources article { display: flex; align-items: center; gap: .75rem; padding: .75rem 0; border-bottom: 1px solid var(--placeholder-border-color); }
+.sources article > div { display: flex; flex: 1; flex-direction: column; min-width: 0; }
+.sources a, .sources small { overflow: hidden; font-size: .75rem; text-overflow: ellipsis; white-space: nowrap; }
+.sources a { color: var(--primary-color); }
+.sources small, .source-error { color: var(--red-color); }
+@media (max-width: 640px) { .source-form { grid-template-columns: 1fr; } .source-form button { margin: 0 0 1rem; } }
