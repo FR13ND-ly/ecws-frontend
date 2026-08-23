@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { get, getDatabase, ref } from 'firebase/database';
-import { BehaviorSubject, Observable, catchError, forkJoin, from, map, of, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, defer, finalize, forkJoin, from, map, of, switchMap, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 export interface Article {
@@ -28,6 +28,7 @@ export class ArticlesService {
   private readonly archiveUpdated = new BehaviorSubject<Article[]>([]);
   private initialized = false;
   private events?: EventSource;
+  private readonly pendingLocalEvents: object[] = [];
 
   articles: Article[][] = [[], [], [], []];
 
@@ -70,7 +71,8 @@ export class ArticlesService {
   }
 
   changeCol(data: { col: number; order: number[] }): void {
-    this.http.post(this.apiUrl + 'reorder/', data).subscribe({
+    this.emitActiveArticles();
+    this.localMutation(this.http.post(this.apiUrl + 'reorder/', data)).subscribe({
       error: (error) => console.error('Article order could not be saved', error)
     });
   }
@@ -82,19 +84,42 @@ export class ArticlesService {
       col: Number(article.col),
       position: this.articles[Number(article.col) - 1]?.length ?? 0
     };
-    return this.http.post<Article>(this.apiUrl, payload);
+    return this.localMutation(this.http.post<Article>(this.apiUrl, payload), (created) => {
+      this.upsertActiveArticle(created);
+    });
   }
 
   archiveArticle(id: number): Observable<unknown> {
-    return this.http.post(`${this.apiUrl}${id}/archive/`, {});
+    const article = this.articles.flat().find((item) => item.id === id);
+    return this.localMutation(this.http.post(`${this.apiUrl}${id}/archive/`, {}), () => {
+      if (!article) return;
+      this.removeActiveArticle(id);
+      this.archiveUpdated.next([
+        { ...article, archivedAt: new Date().toISOString() },
+        ...this.archiveUpdated.value.filter((item) => item.id !== id)
+      ]);
+    });
   }
 
   restoreArticle(id: number): Observable<unknown> {
-    return this.http.post(`${this.apiUrl}${id}/restore/`, {});
+    const article = this.archiveUpdated.value.find((item) => item.id === id);
+    return this.localMutation(this.http.post(`${this.apiUrl}${id}/restore/`, {}), () => {
+      if (!article) return;
+      this.archiveUpdated.next(this.archiveUpdated.value.filter((item) => item.id !== id));
+      this.upsertActiveArticle({
+        ...article,
+        col: 4,
+        position: this.articles[3].length,
+        archivedAt: null
+      });
+    });
   }
 
   updateArticle(article: Article): Observable<Article> {
-    return this.http.put<Article>(`${this.apiUrl}${article.id}/`, article);
+    return this.localMutation(
+      this.http.put<Article>(`${this.apiUrl}${article.id}/`, article),
+      (updated) => this.upsertActiveArticle(updated)
+    );
   }
 
   changeToSecondCol(id: number): Observable<Article> {
@@ -108,7 +133,7 @@ export class ArticlesService {
   }
 
   changeEdition(): Observable<unknown> {
-    return this.http.post(this.apiUrl + 'next-edition/', {});
+    return this.localMutation(this.http.post(this.apiUrl + 'next-edition/', {}), () => this.reload());
   }
 
   private resolveArticles(items: Article[]): Article[][] {
@@ -123,13 +148,60 @@ export class ArticlesService {
   private connectRealtime(): void {
     this.events?.close();
     this.events = new EventSource(environment.apiURL + 'events/');
-    this.events.onopen = () => this.reload();
     this.events.onmessage = (event) => {
-      if (event.data === 'refresh' || event.data.startsWith('article.')) this.reload();
+      if (event.data !== 'refresh' && !event.data.startsWith('article.')) return;
+      if (this.pendingLocalEvents.length) {
+        this.pendingLocalEvents.shift();
+        return;
+      }
+      this.reload();
     };
     this.events.onerror = () => {
       // EventSource reconnects automatically. Existing content remains usable.
     };
+  }
+
+  private localMutation<T>(request: Observable<T>, apply?: (result: T) => void): Observable<T> {
+    return defer(() => {
+      const token = {};
+      this.pendingLocalEvents.push(token);
+      return request.pipe(
+        tap((result) => apply?.(result)),
+        catchError((error) => {
+          this.removePendingEvent(token);
+          this.reload();
+          return throwError(() => error);
+        }),
+        finalize(() => window.setTimeout(() => this.removePendingEvent(token), 1500))
+      );
+    });
+  }
+
+  private removePendingEvent(token: object): void {
+    const index = this.pendingLocalEvents.indexOf(token);
+    if (index >= 0) this.pendingLocalEvents.splice(index, 1);
+  }
+
+  private upsertActiveArticle(article: Article): void {
+    this.removeActiveArticle(article.id);
+    const column = this.articles[article.col - 1];
+    if (!column) return;
+    column.push(article);
+    this.emitActiveArticles();
+  }
+
+  private removeActiveArticle(id?: number): void {
+    if (id == null) return;
+    this.articles = this.articles.map((column) => column.filter((article) => article.id !== id));
+    this.emitActiveArticles();
+  }
+
+  private emitActiveArticles(): void {
+    this.articles.forEach((column, columnIndex) => column.forEach((article, position) => {
+      article.col = columnIndex + 1;
+      article.position = position;
+    }));
+    this.articlesUpdated.next(this.articles.map((column) => [...column]));
   }
 
   private ensureFirebaseMigration(): Observable<unknown> {

@@ -2,7 +2,7 @@ import { DialogRef } from '@angular/cdk/dialog';
 import { HttpEventType } from '@angular/common/http';
 import { Component, HostListener } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Observable, filter, finalize, forkJoin, take, tap } from 'rxjs';
+import { Observable, filter, finalize, forkJoin, map, take, tap } from 'rxjs';
 import { FileRecord, FilesService } from 'src/app/files/data-access/files.service';
 
 @Component({
@@ -94,6 +94,8 @@ export class FileDialogComponent {
           this.uploadProgress = Math.round(progress.reduce((sum, value) => sum + value, 0) / files.length);
         }),
         filter((event) => event.type === HttpEventType.Response),
+        map((event) => event.type === HttpEventType.Response ? event.body : null),
+        filter((file): file is FileRecord => !!file),
         take(1)
       );
     });
@@ -103,11 +105,14 @@ export class FileDialogComponent {
       this.uploadProgress = 0;
       this.uploadCount = 0;
     })).subscribe({
-      next: () => this.snackbar.open(
-        files.length === 1 ? 'Fișierul a fost încărcat' : `${files.length} fișiere au fost încărcate`,
-        '',
-        { duration: 3000 }
-      ),
+      next: (uploaded) => {
+        this.snackbar.open(
+          files.length === 1 ? 'Imaginea a fost încărcată și atașată' : `${files.length} fișiere au fost încărcate`,
+          '',
+          { duration: 3000 }
+        );
+        if (uploaded.length === 1) this.dialogRef.close(uploaded[0].imageUrl);
+      },
       error: (error) => {
         console.error('File upload failed', error);
         this.snackbar.open('Fișierele nu au putut fi încărcate', 'Închide', { duration: 6000 });
