@@ -15,7 +15,7 @@ export class ListComponent {
 
   @Input() name! : any
   @Input() articles! : any
-  @Input() col! : any
+  @Input() col!: number;
 
   drop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer === event.container) {
@@ -42,7 +42,7 @@ export class ListComponent {
       page: 1,
       details: '',
       files: [],
-      col : this.col,
+      col: Number(this.col),
       new: true,
       disableClose : true
     }})

@@ -76,8 +76,13 @@ export class ArticlesService {
   }
 
   addNewArticle(article: Article): Observable<Article> {
-    article.position = this.articles[article.col - 1]?.length ?? 0;
-    return this.http.post<Article>(this.apiUrl, article);
+    const payload = {
+      ...article,
+      page: Number(article.page),
+      col: Number(article.col),
+      position: this.articles[Number(article.col) - 1]?.length ?? 0
+    };
+    return this.http.post<Article>(this.apiUrl, payload);
   }
 
   archiveArticle(id: number): Observable<unknown> {
