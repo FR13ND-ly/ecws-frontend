@@ -1,7 +1,6 @@
 import { Dialog, DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup} from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { debounceTime, filter } from 'rxjs';
 import { ArticlesService } from '../../data-access/articles.service';
 import { FileDialogComponent } from '../file-dialog/file-dialog.component';
@@ -13,7 +12,7 @@ import { FileDialogComponent } from '../file-dialog/file-dialog.component';
 })
 export class EditDialogComponent implements OnInit {
 
-  constructor(private dialogRef: DialogRef, @Inject(DIALOG_DATA) public data: any, private articlesService : ArticlesService, private dialog: MatDialog) {
+  constructor(private dialogRef: DialogRef, @Inject(DIALOG_DATA) public data: any, private articlesService : ArticlesService, private dialog: Dialog) {
     this.dialogRef.disableClose = data.disableClose;
   }
   
@@ -62,17 +61,17 @@ export class EditDialogComponent implements OnInit {
   }
 
   onAddFile() {
-    let fileManager = this.dialog.open(FileDialogComponent)
-    fileManager.afterClosed().subscribe((res) => {
+    const fileManager = this.dialog.open<string>(FileDialogComponent)
+    fileManager.closed.subscribe((res) => {
       if (!res) return
       this.data.files.push(res)
-      this.onSubmit()
+      if (!this.data.new) this.onSubmit()
     })
   }
 
   removeFile(i : any) {
     this.data.files.splice(i, 1)
-    this.onSubmit()
+    if (!this.data.new) this.onSubmit()
   }
 
   onResolve() {

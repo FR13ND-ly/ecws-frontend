@@ -13,7 +13,7 @@ import { FileRecord, FilesService } from 'src/app/files/data-access/files.servic
 export class FileDialogComponent {
 
   constructor(
-    private dialogRef: DialogRef,
+    private dialogRef: DialogRef<string | undefined>,
     private filesService: FilesService,
     private snackbar: MatSnackBar
   ) {}
@@ -71,6 +71,10 @@ export class FileDialogComponent {
 
   close(): void {
     this.dialogRef.close();
+  }
+
+  choose(imageUrl: string): void {
+    this.dialogRef.close(imageUrl);
   }
 
   private uploadFiles(files: File[]): void {

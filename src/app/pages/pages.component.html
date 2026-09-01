@@ -1,34 +1,9 @@
 <section class="edition" *ngIf="state$ | async as state">
     <header class="edition__header">
-        <div>
-            <span class="eyebrow">Ediția curentă</span>
-            <h1>Pagini PDF</h1>
-            <p>{{ updatedLabel(state.updatedAt) }}</p>
-        </div>
-        <button mat-stroked-button color="primary" (click)="fileInput.click()" [disabled]="uploading">
-            <mat-icon>upload_file</mat-icon>
-            Alege PDF
-        </button>
+        <p>{{ updatedLabel(state.updatedAt) }}</p>
     </header>
 
     <input #fileInput hidden type="file" accept="application/pdf,.pdf" (change)="onSelectFile($event)">
-
-    <section class="selected-edition" *ngIf="pendingFile as file">
-            <div class="selected-file">
-                <mat-icon>picture_as_pdf</mat-icon>
-                <div>
-                    <strong>{{ file.name }}</strong>
-                    <span>{{ fileSize(file) }} · vor fi publicate primele 8 pagini</span>
-                </div>
-            </div>
-            <div class="upload-actions">
-                <button mat-button type="button" (click)="clearSelection()" [disabled]="uploading">Anulează</button>
-                <button mat-raised-button color="primary" type="button" (click)="uploadSelected()" [disabled]="uploading">
-                    <mat-icon>{{ uploading ? 'hourglass_top' : 'published_with_changes' }}</mat-icon>
-                    {{ uploading ? 'Se procesează…' : 'Înlocuiește ediția' }}
-                </button>
-            </div>
-    </section>
 
     <div class="pages" *ngIf="state.pages.length; else noPages">
         <button class="page" type="button" (click)="onOpen(page)" *ngFor="let page of state.pages; let i = index">
@@ -44,4 +19,28 @@
             <span>Alege primul PDF pentru a genera paginile.</span>
         </div>
     </ng-template>
+
+    <section class="selected-edition" *ngIf="pendingFile as file">
+        <div class="selected-file">
+            <mat-icon>picture_as_pdf</mat-icon>
+            <div>
+                <strong>{{ file.name }}</strong>
+                <span>{{ fileSize(file) }} · vor fi publicate primele 8 pagini</span>
+            </div>
+        </div>
+        <div class="upload-actions">
+            <button mat-button type="button" (click)="clearSelection()" [disabled]="uploading">Anulează</button>
+            <button mat-raised-button color="primary" type="button" (click)="uploadSelected()" [disabled]="uploading">
+                <mat-icon>{{ uploading ? 'hourglass_top' : 'published_with_changes' }}</mat-icon>
+                {{ uploading ? 'Se procesează…' : 'Înlocuiește ediția' }}
+            </button>
+        </div>
+    </section>
+
+    <footer class="edition__footer">
+        <button mat-raised-button color="primary" (click)="fileInput.click()" [disabled]="uploading">
+            <mat-icon>upload_file</mat-icon>
+            Actualizează ediția
+        </button>
+    </footer>
 </section>

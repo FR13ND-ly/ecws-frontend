@@ -18,7 +18,7 @@
             <button type="button" (click)="fileInput.click()" mat-stroked-button color="primary" [disabled]="uploading">
                 <mat-icon>upload</mat-icon>Încarcă
             </button>
-            <button type="button" [mat-dialog-close]="files[selected].imageUrl" mat-raised-button color="primary" *ngIf="selected != undefined" [disabled]="uploading">
+            <button type="button" (click)="choose(files[selected].imageUrl)" mat-raised-button color="primary" *ngIf="selected != undefined" [disabled]="uploading">
                 <mat-icon>done</mat-icon>Alege
             </button>
             <button type="button" (click)="close()" mat-icon-button aria-label="Închide"><mat-icon>close</mat-icon></button>
