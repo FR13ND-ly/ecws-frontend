@@ -1,5 +1,5 @@
 <form class="article" (submit)="onSubmit()" [formGroup]="articleForm" >
-    <div class="article__content">
+    <div class="article__content" *ngIf="!historyOpen; else history">
         <mat-form-field appearance="fill">
             <mat-label>Titlu</mat-label>
             <input matInput required formControlName="title">
@@ -26,11 +26,49 @@
             <div class="article__files-add-btn" (click)="onAddFile()"><mat-icon>add_photo_alternate</mat-icon></div>
         </div>
     </div>
+    <ng-template #history>
+        <section class="history">
+            <div class="history__loading" *ngIf="historyLoading">Se încarcă istoricul…</div>
+            <div class="history__empty" *ngIf="!historyLoading && !revisions.length">Nu există încă versiuni salvate.</div>
+            <ng-container *ngIf="!historyLoading && revisions.length">
+                <aside class="history__list">
+                    <button type="button" *ngFor="let revision of revisions"
+                        [class.history__version--selected]="revision.id === selectedRevision?.id"
+                        (click)="selectRevision(revision)" class="history__version">
+                        <strong>{{ revisionLabel(revision) }}</strong>
+                        <span>Pagina {{ revision.page }} · coloana {{ revision.col }}</span>
+                    </button>
+                </aside>
+                <article class="history__preview" *ngIf="selectedRevision as revision">
+                    <div class="history__preview-header">
+                        <div>
+                            <span>Previzualizare</span>
+                            <strong>{{ revisionLabel(revision) }}</strong>
+                        </div>
+                        <button mat-raised-button color="primary" type="button" (click)="restoreSelectedRevision()" [disabled]="restoring">
+                            <mat-icon>restore</mat-icon>
+                            {{ restoring ? 'Se restaurează…' : 'Restaurează versiunea' }}
+                        </button>
+                    </div>
+                    <h2>{{ revision.title }}</h2>
+                    <p class="history__text">{{ revision.text }}</p>
+                    <p class="history__details" *ngIf="revision.details">{{ revision.details }}</p>
+                    <div class="history__files" *ngIf="revision.files.length">
+                        <img *ngFor="let file of revision.files" [src]="file.slice(-3) == 'pdf' ? pdfImageUrl : file" alt="Imagine atașată">
+                    </div>
+                </article>
+            </ng-container>
+        </section>
+    </ng-template>
     <div class="article__actions">
         <div class="article__positive-actions">
-            <button mat-raised-button color="primary" *ngIf="data.new">Salveză</button>
-            <button mat-raised-button color="primary" *ngIf="!data.new">Actualizează</button>
-            <button mat-raised-button color="accent" type="button" (click)="onResolve()" *ngIf="!data.new && data.col == 1">Aranjat</button>
+            <button mat-raised-button color="primary" *ngIf="data.new && !historyOpen">Salveză</button>
+            <button mat-raised-button color="primary" *ngIf="!data.new && !historyOpen">Actualizează</button>
+            <button mat-raised-button color="accent" type="button" (click)="onResolve()" *ngIf="!data.new && data.col == 1 && !historyOpen">Aranjat</button>
+            <button mat-stroked-button type="button" (click)="toggleHistory()" *ngIf="!data.new">
+                <mat-icon>{{ historyOpen ? 'edit' : 'history' }}</mat-icon>
+                {{ historyOpen ? 'Înapoi la editare' : 'Istoric' }}
+            </button>
         </div>
         <button type="button" mat-raised-button (click)="onClose()" color="warn" *ngIf="data.new">Anulează</button>
         <button type="button" mat-raised-button (click)="onRemoveArticle()" color="warn" *ngIf="!data.new">Arhivează</button>

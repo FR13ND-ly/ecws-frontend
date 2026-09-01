@@ -20,6 +20,21 @@ export interface Article {
   archivedAt?: string | null;
 }
 
+export interface ArticleRevision {
+  id: number;
+  articleId: number;
+  title: string;
+  text: string;
+  details: string;
+  page: number;
+  col: number;
+  position: number;
+  files: string[];
+  date: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ArticlesService {
   private readonly apiUrl = environment.apiURL + 'articles/';
@@ -159,6 +174,17 @@ export class ArticlesService {
     this.events.onerror = () => {
       // EventSource reconnects automatically. Existing content remains usable.
     };
+  }
+
+  getRevisions(articleId: number): Observable<ArticleRevision[]> {
+    return this.http.get<ArticleRevision[]>(`${this.apiUrl}${articleId}/revisions/`);
+  }
+
+  restoreRevision(articleId: number, revisionId: number): Observable<Article> {
+    return this.localMutation(
+      this.http.post<Article>(`${this.apiUrl}${articleId}/revisions/${revisionId}/restore/`, {}),
+      (restored) => this.upsertActiveArticle(restored)
+    );
   }
 
   private localMutation<T>(request: Observable<T>, apply?: (result: T) => void): Observable<T> {

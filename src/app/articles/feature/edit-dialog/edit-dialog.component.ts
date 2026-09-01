@@ -2,7 +2,7 @@ import { Dialog, DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup} from '@angular/forms';
 import { debounceTime, filter } from 'rxjs';
-import { ArticlesService } from '../../data-access/articles.service';
+import { Article, ArticleRevision, ArticlesService } from '../../data-access/articles.service';
 import { FileDialogComponent } from '../file-dialog/file-dialog.component';
 
 @Component({
@@ -17,6 +17,11 @@ export class EditDialogComponent implements OnInit {
   }
   
   pdfImageUrl = "https://is5-ssl.mzstatic.com/image/thumb/Purple122/v4/02/07/35/020735e3-5214-a4a7-01b2-2bc55e89035b/AppIcon-0-1x_U007emarketing-0-7-0-85-220.png/1200x630wa.png"
+  historyOpen = false;
+  historyLoading = false;
+  restoring = false;
+  revisions: ArticleRevision[] = [];
+  selectedRevision?: ArticleRevision;
 
   articleForm = new FormGroup({
     title: new FormControl(this.data.title),
@@ -74,6 +79,39 @@ export class EditDialogComponent implements OnInit {
     if (!this.data.new) this.onSubmit()
   }
 
+  toggleHistory(): void {
+    this.historyOpen = !this.historyOpen;
+    if (!this.historyOpen || this.data.id == null) return;
+    this.loadHistory();
+  }
+
+  selectRevision(revision: ArticleRevision): void {
+    this.selectedRevision = revision;
+  }
+
+  restoreSelectedRevision(): void {
+    if (!this.selectedRevision || this.data.id == null || this.restoring) return;
+    this.restoring = true;
+    this.articlesService.restoreRevision(this.data.id, this.selectedRevision.id).subscribe({
+      next: (article) => {
+        this.applyArticle(article);
+        this.historyOpen = false;
+        this.restoring = false;
+      },
+      error: (error) => {
+        this.restoring = false;
+        console.error('Article revision could not be restored', error);
+      }
+    });
+  }
+
+  revisionLabel(revision: ArticleRevision): string {
+    const date = new Date(revision.updatedAt);
+    return Number.isNaN(date.getTime())
+      ? revision.updatedAt
+      : date.toLocaleString('ro-RO', { dateStyle: 'medium', timeStyle: 'short' });
+  }
+
   onResolve() {
     this.articlesService.changeToSecondCol(this.data.id).subscribe({
       next: () => this.dialogRef.close(),
@@ -92,4 +130,29 @@ export class EditDialogComponent implements OnInit {
   onClose() {
     this.dialogRef.close()
   }    
+
+  private loadHistory(): void {
+    this.historyLoading = true;
+    this.articlesService.getRevisions(this.data.id).subscribe({
+      next: (revisions) => {
+        this.revisions = revisions;
+        this.selectedRevision = revisions[0];
+        this.historyLoading = false;
+      },
+      error: (error) => {
+        this.historyLoading = false;
+        console.error('Article history could not be loaded', error);
+      }
+    });
+  }
+
+  private applyArticle(article: Article): void {
+    Object.assign(this.data, article);
+    this.articleForm.patchValue({
+      title: article.title,
+      text: article.text,
+      details: article.details,
+      page: article.page
+    }, { emitEvent: false });
+  }
 }
