@@ -15,14 +15,14 @@
             <textarea class="article__details" matInput placeholder="Detalii" cdkTextareaAutosize rows="3" formControlName="details"></textarea>
         </mat-form-field>
         <div class="article__files">
-            <a class="file" *ngFor='let file of data.files; let i = index'>
+            <div class="file" *ngFor='let file of data.files; let i = index'>
                 <div class="file__buttons-wrapper">
                     <button (click)="removeFile(i)" mat-icon-button color="warn" type="button"><mat-icon>delete</mat-icon></button>
                 </div>
-                <a [href]="file" target="_blank">
+                <a [href]="file" target="_blank" rel="noopener">
                     <img [src]="file.slice(-3) == 'pdf' ? pdfImageUrl : file" class="file__image">
                 </a>
-            </a>
+            </div>
             <div class="article__files-add-btn" (click)="onAddFile()"><mat-icon>add_photo_alternate</mat-icon></div>
         </div>
     </div>
