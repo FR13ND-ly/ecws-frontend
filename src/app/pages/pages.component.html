@@ -20,27 +20,10 @@
         </div>
     </ng-template>
 
-    <section class="selected-edition" *ngIf="pendingFile as file">
-        <div class="selected-file">
-            <mat-icon>picture_as_pdf</mat-icon>
-            <div>
-                <strong>{{ file.name }}</strong>
-                <span>{{ fileSize(file) }} · vor fi publicate primele 8 pagini</span>
-            </div>
-        </div>
-        <div class="upload-actions">
-            <button mat-button type="button" (click)="clearSelection()" [disabled]="uploading">Anulează</button>
-            <button mat-raised-button color="primary" type="button" (click)="uploadSelected()" [disabled]="uploading">
-                <mat-icon>{{ uploading ? 'hourglass_top' : 'published_with_changes' }}</mat-icon>
-                {{ uploading ? 'Se procesează…' : 'Înlocuiește ediția' }}
-            </button>
-        </div>
-    </section>
-
     <footer class="edition__footer">
         <button mat-raised-button color="primary" (click)="fileInput.click()" [disabled]="uploading">
-            <mat-icon>upload_file</mat-icon>
-            Actualizează ediția
+            <mat-icon>{{ uploading ? 'hourglass_top' : 'upload_file' }}</mat-icon>
+            {{ uploading ? 'Se actualizează ediția…' : 'Actualizează ediția' }}
         </button>
     </footer>
 </section>

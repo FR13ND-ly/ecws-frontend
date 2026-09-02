@@ -36,12 +36,10 @@ export class PagesComponent implements OnInit {
 
   onSelectFile(event: Event): void {
     const input = event.target as HTMLInputElement;
+    this.pendingFile = null;
     this.setCandidate(input.files?.[0] ?? null);
     input.value = '';
-  }
-
-  clearSelection(): void {
-    if (!this.uploading) this.pendingFile = null;
+    if (this.pendingFile) this.uploadSelected();
   }
 
   uploadSelected(): void {
@@ -70,10 +68,6 @@ export class PagesComponent implements OnInit {
 
   onOpen(page: string): void {
     window.open(page, '_blank', 'noopener');
-  }
-
-  fileSize(file: File): string {
-    return `${(file.size / 1024 / 1024).toFixed(1)} MB`;
   }
 
   updatedLabel(value: string | null): string {
