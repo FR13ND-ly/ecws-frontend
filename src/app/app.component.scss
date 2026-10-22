@@ -18,3 +18,20 @@
         left: 0;
     }
 }
+
+.horoscope-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+
+    &__indicator {
+        width: 18px;
+        height: 18px;
+        font-size: 18px;
+        color: #2e7d32;
+    }
+}
+
+:host-context(.dark-theme) .horoscope-tab__indicator {
+    color: #81c784;
+}

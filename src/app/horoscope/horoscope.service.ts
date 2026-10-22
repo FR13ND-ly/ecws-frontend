@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
-import { getDatabase, onValue, push, ref, update } from 'firebase/database';
-import { Subject, map, Observable, BehaviorSubject } from 'rxjs'
+import { getDatabase, onValue, ref, update } from 'firebase/database';
+import { ReplaySubject, map } from 'rxjs'
 
 @Injectable({
   providedIn: 'root'
 })
 export class HoroscopeService {
 
-  private horoscopeUpdated = new Subject<[][]>()
+  private horoscopeUpdated = new ReplaySubject<Record<string, any> | null>(1)
   private db = getDatabase();
 
   constructor() { }
@@ -20,12 +20,10 @@ export class HoroscopeService {
 
   getHoroscopeUpdateListener() {
     return this.horoscopeUpdated.asObservable().pipe(
-      map((res : any) : any => {
-        return Object.entries(res).map((el : any) => {
-          el[1].id = el[0]
-          return el[1]
-      })[0]
-    }))
+      map(res => {
+        const entry = Object.entries(res ?? {})[0]
+        return entry ? { ...entry[1], id: entry[0] } : null
+      }))
   }
 
   async onUpdate(horoscope : any) {

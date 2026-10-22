@@ -16,8 +16,8 @@ export class AppComponent implements OnInit {
 
   title = 'ecws';
 
-  horoscopeUpdated$ : Observable<any> = this.horoscopeService.getHoroscopeUpdateListener().pipe(
-    map(res => !res.published)
+  horoscopePublished$: Observable<boolean> = this.horoscopeService.getHoroscopeUpdateListener().pipe(
+    map(res => !!res?.published)
   )
 
   loading$ : Observable<any> = this.store.select('loading')

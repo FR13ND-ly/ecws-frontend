@@ -2,10 +2,8 @@
     <div class="list__content">
         <h2 class="list__title">{{ name }}</h2>
         <app-articles-list 
-            cdkDropList
-            [cdkDropListData]="articles"
             *ngIf="articles"
-            (cdkDropListDropped)="drop($event)"
+            (articleDropped)="drop($event)"
             [articles]="articles">
         </app-articles-list>
     </div>

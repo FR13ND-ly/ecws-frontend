@@ -1,5 +1,7 @@
 import { Dialog } from '@angular/cdk/dialog';
-import { Component, Input } from '@angular/core';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Article } from '../../data-access/articles.service';
 import { EditDialogComponent } from '../../feature/edit-dialog/edit-dialog.component';
 
 @Component({
@@ -11,7 +13,8 @@ export class ArticlesListComponent {
 
   constructor(private dialog: Dialog) {}
 
-  @Input() articles! : any
+  @Input() articles: Article[] = []
+  @Output() articleDropped = new EventEmitter<CdkDragDrop<Article[], Article[], Article>>()
 
   openEditor(article : any) {
     this.dialog.open(EditDialogComponent, { data : article })

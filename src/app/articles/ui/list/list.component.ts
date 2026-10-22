@@ -1,7 +1,8 @@
 import { Dialog } from '@angular/cdk/dialog';
-import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Component, Input } from '@angular/core';
-import { ArticlesService } from '../../data-access/articles.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Article, ArticlesService } from '../../data-access/articles.service';
 import { EditDialogComponent } from '../../feature/edit-dialog/edit-dialog.component';
 
 @Component({
@@ -11,28 +12,23 @@ import { EditDialogComponent } from '../../feature/edit-dialog/edit-dialog.compo
 })
 export class ListComponent {
 
-  constructor(private articlesService : ArticlesService, private dialog: Dialog) {}
+  constructor(private articlesService: ArticlesService, private dialog: Dialog, private snackBar: MatSnackBar) {}
 
   @Input() name! : any
   @Input() articles! : any
   @Input() col!: number;
 
-  drop(event: CdkDragDrop<string[]>) {
-    if (event.previousContainer === event.container) {
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    } else {
-      transferArrayItem(event.previousContainer.data,
-                        event.container.data,
-                        event.previousIndex,
-                        event.currentIndex);
-    }
-    let order : number[] = []
-    event.container.data.forEach((el : any) => order.push(Number(el['id'])))
-    let val = {
-      order,
-      col : Number(this.col)
-    }
-    this.articlesService.changeCol(val)
+  drop(event: CdkDragDrop<Article[], Article[], Article>) {
+    if (!event.isPointerOverContainer ||
+        (event.previousContainer === event.container && event.previousIndex === event.currentIndex)) return
+
+    const article = event.item.data
+    if (article.id == null) return
+    const siblings = event.container.data.filter(item => item.id !== article.id)
+    const beforeId = siblings[event.currentIndex]?.id
+    this.articlesService.moveArticle(article.id, Number(this.col), beforeId).subscribe({
+      error: () => this.snackBar.open('Mutarea nu a putut fi salvată. Încearcă din nou.', 'Închide', { duration: 5000 })
+    })
   }
 
   onAddArticle() {

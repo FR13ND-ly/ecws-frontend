@@ -26,9 +26,13 @@
         <mat-tab label="Flux RSS">
             <app-rss></app-rss>
         </mat-tab>
-        <mat-tab label="Horoscop">
+        <mat-tab>
             <ng-template mat-tab-label>
-                <span [class.updated]="horoscopeUpdated$ | async">Horoscop</span>
+                <span class="horoscope-tab">
+                    Horoscop
+                    <mat-icon *ngIf="horoscopePublished$ | async" class="horoscope-tab__indicator"
+                        role="img" aria-label="Horoscop publicat" matTooltip="Horoscop publicat">check_circle</mat-icon>
+                </span>
             </ng-template>
             <app-horoscope></app-horoscope>
         </mat-tab>

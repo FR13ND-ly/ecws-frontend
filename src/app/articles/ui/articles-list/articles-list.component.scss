@@ -1,8 +1,13 @@
 :host {
+    display: block;
+    height: 60vh;
+}
+
+.articles-list {
     display: flex;
     flex-direction: column;
     gap: .5rem;
-    height: 60vh;
+    height: 100%;
     overflow-y: scroll;
     box-sizing: border-box;
     padding: .1rem;
@@ -51,7 +56,7 @@
     }
 }
 
-.list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
+.articles-list.cdk-drop-list-dragging .article:not(.cdk-drag-placeholder) {
     transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
@@ -62,10 +67,6 @@
     transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-.list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-}
-  
 .cdk-drag-preview {
     box-sizing: border-box;;
 }

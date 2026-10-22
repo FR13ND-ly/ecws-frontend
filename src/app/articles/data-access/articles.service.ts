@@ -85,11 +85,35 @@ export class ArticlesService {
     });
   }
 
-  changeCol(data: { col: number; order: number[] }): void {
-    this.emitActiveArticles();
-    this.localMutation(this.http.post(this.apiUrl + 'reorder/', data)).subscribe({
-      error: (error) => console.error('Article order could not be saved', error)
-    });
+  moveArticle(id: number, col: number, beforeId?: number): Observable<unknown> {
+    const article = this.articles.flat().find(item => item.id === id);
+    if (!article || col < 1 || col > 4) return of(null);
+
+    const previous = this.articles;
+    const lists = previous.map(list => list.filter(item => item.id !== id));
+    const destination = lists[col - 1];
+    const beforeIndex = destination.findIndex(item => item.id === beforeId);
+    destination.splice(beforeIndex < 0 ? destination.length : beforeIndex, 0, article);
+
+    // Update the complete board, including cards hidden by the current search.
+    const moved = lists.map((list, column) => list.map((item, position) => ({
+      ...item, col: column + 1, position
+    })));
+    this.articles = moved;
+    this.articlesUpdated.next(moved);
+
+    return this.localMutation(this.http.post(this.apiUrl + 'reorder/', {
+      col,
+      order: moved[col - 1].map(item => item.id!)
+    })).pipe(tap({
+      next: () => this.reload(),
+      error: () => {
+        if (this.articles === moved) {
+          this.articles = previous;
+          this.articlesUpdated.next(previous);
+        }
+      }
+    }));
   }
 
   addNewArticle(article: Article): Observable<Article> {
