@@ -1,26 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NgZone, NO_ERRORS_SCHEMA } from '@angular/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Store } from '@ngrx/store';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 import { AppComponent } from './app.component';
 import { FilesService } from './files/data-access/files.service';
 import { HoroscopeComponent } from './horoscope/horoscope.component';
-import { HoroscopeService } from './horoscope/horoscope.service';
+import { HOROSCOPE_SOURCE, HoroscopeRecords } from './horoscope/horoscope.source';
 import { MaterialModule } from './material.module';
 import { PagesService } from './pages/data-access/pages.service';
 
 describe('Horoscope tab indicator', () => {
   let fixture: ComponentFixture<AppComponent>;
-  let horoscope: BehaviorSubject<any>;
+  let publish: (records: HoroscopeRecords | null) => void;
   let update: jasmine.Spy;
 
   beforeEach(async () => {
-    horoscope = new BehaviorSubject({ id: 'horoscope', text: 'Horoscopul zilei', published: false });
-    update = jasmine.createSpy('onUpdate').and.callFake(value => {
-      horoscope.next({ ...value });
-      return Promise.resolve();
-    });
+    update = jasmine.createSpy('save').and.returnValue(Promise.resolve());
     await TestBed.configureTestingModule({
       imports: [MaterialModule, NoopAnimationsModule],
       declarations: [AppComponent, HoroscopeComponent],
@@ -28,31 +24,40 @@ describe('Horoscope tab indicator', () => {
         { provide: Store, useValue: { select: () => of(false) } },
         { provide: FilesService, useValue: { init: () => {} } },
         { provide: PagesService, useValue: {} },
-        { provide: HoroscopeService, useValue: {
-          init: () => {},
-          getHoroscopeUpdateListener: () => horoscope.asObservable(),
-          onUpdate: update
+        { provide: HOROSCOPE_SOURCE, useValue: {
+          listen: (next: typeof publish) => {
+            publish = next;
+            next({ horoscope: { text: 'Horoscopul zilei', published: false } });
+            return () => {};
+          },
+          save: update
         } }
       ],
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
     fixture = TestBed.createComponent(AppComponent);
     spyOn(fixture.componentInstance, 'changeMenu');
-    fixture.detectChanges();
+    fixture.autoDetectChanges();
   });
 
-  it('shows a check in the tab header only while the horoscope is published', () => {
-    expect(fixture.nativeElement.querySelector('.horoscope-tab__indicator')).toBeNull();
-    horoscope.next({ ...horoscope.value, published: true });
-    fixture.detectChanges();
+  it('shows the real publication state in the tab header, including Firebase callbacks outside Angular', async () => {
+    const initial: HTMLElement = fixture.nativeElement.querySelector('.horoscope-tab__indicator');
+    expect(initial.getAttribute('aria-label')).toBe('Horoscop nepublicat');
+    TestBed.inject(NgZone).runOutsideAngular(() => {
+      publish({ horoscope: { text: 'Horoscopul zilei', published: true } });
+    });
+    await fixture.whenStable();
     const indicator: HTMLElement = fixture.nativeElement.querySelector('.horoscope-tab__indicator');
-    expect(indicator.textContent?.trim()).toBe('check_circle');
+    expect(indicator.textContent?.trim()).toBe('✓');
     expect(indicator.closest('[role="tab"]')?.textContent).toContain('Horoscop');
     expect(indicator.getAttribute('aria-label')).toBe('Horoscop publicat');
 
-    horoscope.next({ ...horoscope.value, published: false });
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.horoscope-tab__indicator')).toBeNull();
+    TestBed.inject(NgZone).runOutsideAngular(() => {
+      publish({ horoscope: { text: 'Horoscopul zilei', published: false } });
+    });
+    await fixture.whenStable();
+    expect(indicator.getAttribute('aria-label')).toBe('Horoscop nepublicat');
+    expect(indicator.classList.contains('horoscope-tab__indicator--published')).toBeFalse();
   });
 
   it('updates the header when the publication button is toggled', async () => {
@@ -65,11 +70,11 @@ describe('Horoscope tab indicator', () => {
     fixture.detectChanges();
     expect(update).toHaveBeenCalledWith(jasmine.objectContaining({ published: true }));
     expect(button.getAttribute('aria-pressed')).toBe('true');
-    expect(fixture.nativeElement.querySelector('.horoscope-tab__indicator')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.horoscope-tab__indicator').getAttribute('aria-label')).toBe('Horoscop publicat');
 
     button.click();
     fixture.detectChanges();
     expect(button.getAttribute('aria-pressed')).toBe('false');
-    expect(fixture.nativeElement.querySelector('.horoscope-tab__indicator')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.horoscope-tab__indicator').getAttribute('aria-label')).toBe('Horoscop nepublicat');
   });
 });

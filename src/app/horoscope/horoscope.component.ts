@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { HoroscopeService } from './horoscope.service';
-import { BehaviorSubject, Observable, tap } from 'rxjs'
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Horoscope } from './horoscope.source';
 
 @Component({
   selector: 'app-horoscope',
@@ -9,18 +10,22 @@ import { BehaviorSubject, Observable, tap } from 'rxjs'
 })
 export class HoroscopeComponent {
   
-  constructor(private horoscopeService : HoroscopeService) { }
+  constructor(private horoscopeService: HoroscopeService, private snackBar: MatSnackBar) {}
 
-  horoscope$ : Observable<any> = this.horoscopeService.getHoroscopeUpdateListener()
+  horoscope$ = this.horoscopeService.getHoroscopeUpdateListener()
 
-  onChangeHoroscope(horoscope : any, text : any) {
-    horoscope.text = text
-    this.horoscopeService.onUpdate(horoscope)
+  onChangeHoroscope(horoscope: Horoscope, text: string) {
+    this.save({ ...horoscope, text })
   }
 
-  onResolve(horoscope : any) {
-    horoscope.published = !horoscope.published
-    this.horoscopeService.onUpdate(horoscope)
+  onResolve(horoscope: Horoscope) {
+    this.save({ ...horoscope, published: !horoscope.published })
+  }
+
+  private save(horoscope: Horoscope) {
+    this.horoscopeService.onUpdate(horoscope).catch(() => {
+      this.snackBar.open('Horoscopul nu a putut fi salvat. Încearcă din nou.', 'Închide', { duration: 5000 })
+    })
   }
 
   onCopy(text : any) {

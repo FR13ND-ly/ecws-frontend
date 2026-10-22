@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { FilesService } from './files/data-access/files.service';
 import { HoroscopeService } from './horoscope/horoscope.service';
 import { PagesService } from './pages/data-access/pages.service';
@@ -16,9 +16,7 @@ export class AppComponent implements OnInit {
 
   title = 'ecws';
 
-  horoscopePublished$: Observable<boolean> = this.horoscopeService.getHoroscopeUpdateListener().pipe(
-    map(res => !!res?.published)
-  )
+  horoscope$ = this.horoscopeService.getHoroscopeUpdateListener()
 
   loading$ : Observable<any> = this.store.select('loading')
 

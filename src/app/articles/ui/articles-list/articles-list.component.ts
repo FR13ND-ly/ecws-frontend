@@ -16,6 +16,10 @@ export class ArticlesListComponent {
   @Input() articles: Article[] = []
   @Output() articleDropped = new EventEmitter<CdkDragDrop<Article[], Article[], Article>>()
 
+  trackArticle(_index: number, article: Article) {
+    return article.id
+  }
+
   openEditor(article : any) {
     this.dialog.open(EditDialogComponent, { data : article })
   }

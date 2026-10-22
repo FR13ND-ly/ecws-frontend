@@ -30,8 +30,10 @@
             <ng-template mat-tab-label>
                 <span class="horoscope-tab">
                     Horoscop
-                    <mat-icon *ngIf="horoscopePublished$ | async" class="horoscope-tab__indicator"
-                        role="img" aria-label="Horoscop publicat" matTooltip="Horoscop publicat">check_circle</mat-icon>
+                    <span *ngIf="horoscope$ | async as horoscope" class="horoscope-tab__indicator"
+                        [class.horoscope-tab__indicator--published]="horoscope.published"
+                        role="img" [attr.aria-label]="horoscope.published ? 'Horoscop publicat' : 'Horoscop nepublicat'"
+                        [matTooltip]="horoscope.published ? 'Horoscop publicat' : 'Horoscop nepublicat'">{{ horoscope.published ? '✓' : '•' }}</span>
                 </span>
             </ng-template>
             <app-horoscope></app-horoscope>

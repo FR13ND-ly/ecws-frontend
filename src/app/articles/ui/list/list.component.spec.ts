@@ -68,7 +68,7 @@ describe('Article board drag and drop', () => {
     const request = http.expectOne(apiUrl + 'reorder/');
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual({ col, order });
-    const saved = service.articles.flat();
+    const saved = service.articles.flat().map(item => ({ ...item, files: [...item.files] }));
     request.flush({ status: 'success' });
     flushReload(saved);
     tick(1500);
@@ -160,5 +160,35 @@ describe('Article board drag and drop', () => {
     expect(service.articles[0].map(item => item.id)).toEqual([2, 1]);
     confirmSave(1, [2, 1]);
     expect(fixture.nativeElement.querySelector('.article__title').textContent).toContain('Articol editat');
+  }));
+
+  it('supports repeated moves in one column without replacing its card elements', fakeAsync(() => {
+    const original = fixture.nativeElement.querySelector('.article');
+    for (let move = 0; move < 8; move++) {
+      const cards = fixture.nativeElement.querySelectorAll('.cdk-drop-list .article') as NodeListOf<HTMLElement>;
+      const target = cards[1].getBoundingClientRect();
+      const expected = [...service.articles[0]].reverse().map(item => item.id!);
+      dragTo(cards[0], target.left + target.width / 2, target.bottom - 5);
+      expect(service.articles[0].map(item => item.id)).toEqual(expected);
+      confirmSave(1, expected);
+      const firstArticle = Array.from(fixture.nativeElement.querySelectorAll('.article') as NodeListOf<HTMLElement>)
+        .find(card => card.querySelector('.article__title')?.textContent?.includes('Articol 1'));
+      expect(firstArticle).toBe(original);
+    }
+  }));
+
+  it('allows another drag while the previous move is still being saved', fakeAsync(() => {
+    function moveFirstToEnd() {
+      const cards = fixture.nativeElement.querySelectorAll('.cdk-drop-list .article') as NodeListOf<HTMLElement>;
+      const target = cards[1].getBoundingClientRect();
+      dragTo(cards[0], target.left + target.width / 2, target.bottom - 5);
+    }
+    moveFirstToEnd();
+    const first = http.expectOne(apiUrl + 'reorder/');
+    moveFirstToEnd();
+    expect(service.articles[0].map(item => item.id)).toEqual([1, 2]);
+    http.expectNone(apiUrl + 'reorder/');
+    first.flush({ status: 'success' });
+    confirmSave(1, [1, 2]);
   }));
 });

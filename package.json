@@ -1,6 +1,9 @@
 {
   "name": "ecws",
   "version": "0.0.0",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "ng": "ng ",
     "start": "ng serve",
@@ -21,7 +24,7 @@
     "@angular/platform-browser": "^15.0.0",
     "@angular/platform-browser-dynamic": "^15.0.0",
     "@angular/router": "^15.0.0",
-    "@ngrx/store": "^14.3.2",
+    "@ngrx/store": "^15.4.0",
     "build": "^0.1.4",
     "firebase": "^9.13.0",
     "ng": "^0.0.0",

@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { get, getDatabase, ref } from 'firebase/database';
-import { BehaviorSubject, Observable, catchError, defer, finalize, forkJoin, from, map, of, switchMap, tap, throwError } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, ReplaySubject, Subject, catchError, concatMap, defer, finalize, forkJoin, from, map, of, switchMap, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 export interface Article {
@@ -35,6 +35,14 @@ export interface ArticleRevision {
   updatedAt: string;
 }
 
+interface ArticleReorder {
+  col: number;
+  order: number[];
+  previous: Article[][];
+  moved: Article[][];
+  result: ReplaySubject<unknown>;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ArticlesService {
   private readonly apiUrl = environment.apiURL + 'articles/';
@@ -44,10 +52,38 @@ export class ArticlesService {
   private initialized = false;
   private events?: EventSource;
   private readonly pendingLocalEvents: object[] = [];
+  private readonly reorders = new Subject<ArticleReorder>();
+  private pendingReorders = 0;
+  private boardVersion = 0;
+  private reloadVersion = 0;
 
   articles: Article[][] = [[], [], [], []];
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.reorders.pipe(concatMap(job => this.localMutation(this.http.post(this.apiUrl + 'reorder/', {
+      col: job.col, order: job.order
+    })).pipe(
+      tap({
+        next: result => {
+          job.result.next(result);
+          job.result.complete();
+        },
+        error: error => {
+          if (this.articles === job.moved) {
+            this.articles = job.previous;
+            this.boardVersion++;
+            this.articlesUpdated.next(this.articles);
+          }
+          job.result.error(error);
+        }
+      }),
+      catchError(() => EMPTY),
+      finalize(() => {
+        this.pendingReorders--;
+        if (!this.pendingReorders) this.reload();
+      })
+    ))).subscribe();
+  }
 
   init(): void {
     if (this.initialized) return;
@@ -70,6 +106,9 @@ export class ArticlesService {
   }
 
   reload(): void {
+    if (this.pendingReorders) return;
+    const boardVersion = this.boardVersion;
+    const reloadVersion = ++this.reloadVersion;
     forkJoin({
       active: this.http.get<Article[]>(this.apiUrl),
       archived: this.http.get<Article[]>(this.apiUrl, {
@@ -77,6 +116,7 @@ export class ArticlesService {
       })
     }).subscribe({
       next: ({ active, archived }) => {
+        if (this.pendingReorders || boardVersion !== this.boardVersion || reloadVersion !== this.reloadVersion) return;
         this.articles = this.resolveArticles(active);
         this.articlesUpdated.next(this.articles);
         this.archiveUpdated.next(archived);
@@ -86,6 +126,10 @@ export class ArticlesService {
   }
 
   moveArticle(id: number, col: number, beforeId?: number): Observable<unknown> {
+    return defer(() => this.enqueueReorder(id, col, beforeId));
+  }
+
+  private enqueueReorder(id: number, col: number, beforeId?: number): Observable<unknown> {
     const article = this.articles.flat().find(item => item.id === id);
     if (!article || col < 1 || col > 4) return of(null);
 
@@ -100,20 +144,19 @@ export class ArticlesService {
       ...item, col: column + 1, position
     })));
     this.articles = moved;
+    this.boardVersion++;
     this.articlesUpdated.next(moved);
 
-    return this.localMutation(this.http.post(this.apiUrl + 'reorder/', {
+    const result = new ReplaySubject<unknown>(1);
+    this.pendingReorders++;
+    this.reorders.next({
       col,
-      order: moved[col - 1].map(item => item.id!)
-    })).pipe(tap({
-      next: () => this.reload(),
-      error: () => {
-        if (this.articles === moved) {
-          this.articles = previous;
-          this.articlesUpdated.next(previous);
-        }
-      }
-    }));
+      order: moved[col - 1].map(item => item.id!),
+      previous,
+      moved,
+      result
+    });
+    return result.asObservable();
   }
 
   addNewArticle(article: Article): Observable<Article> {
@@ -247,6 +290,7 @@ export class ArticlesService {
   }
 
   private emitActiveArticles(): void {
+    this.boardVersion++;
     this.articles.forEach((column, columnIndex) => column.forEach((article, position) => {
       article.col = columnIndex + 1;
       article.position = position;

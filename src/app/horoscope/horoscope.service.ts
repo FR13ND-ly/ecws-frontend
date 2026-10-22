@@ -1,32 +1,46 @@
-import { Injectable } from '@angular/core';
-import { getDatabase, onValue, ref, update } from 'firebase/database';
-import { ReplaySubject, map } from 'rxjs'
+import { Inject, Injectable, NgZone, OnDestroy } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import { HOROSCOPE_SOURCE, Horoscope, HoroscopeSource } from './horoscope.source';
 
 @Injectable({
   providedIn: 'root'
 })
-export class HoroscopeService {
+export class HoroscopeService implements OnDestroy {
 
-  private horoscopeUpdated = new ReplaySubject<Record<string, any> | null>(1)
-  private db = getDatabase();
+  private readonly horoscopeUpdated = new BehaviorSubject<Horoscope | null>(null);
+  private stopListening?: () => void;
+  private updateVersion = 0;
 
-  constructor() { }
+  constructor(@Inject(HOROSCOPE_SOURCE) private source: HoroscopeSource, private zone: NgZone) {}
 
   init() {
-    onValue(ref(this.db, 'horoscope'), (snapshot) => {
-      this.horoscopeUpdated.next(snapshot.val())
-    })
+    if (this.stopListening) return;
+    this.stopListening = this.source.listen(records => {
+      const entry = Object.entries(records ?? {})[0];
+      const horoscope = entry ? { ...entry[1], id: entry[0] } : null;
+      this.zone.run(() => this.horoscopeUpdated.next(horoscope));
+    });
   }
 
   getHoroscopeUpdateListener() {
-    return this.horoscopeUpdated.asObservable().pipe(
-      map(res => {
-        const entry = Object.entries(res ?? {})[0]
-        return entry ? { ...entry[1], id: entry[0] } : null
-      }))
+    return this.horoscopeUpdated.asObservable();
   }
 
-  async onUpdate(horoscope : any) {
-    await update(ref(this.db, `horoscope/${horoscope.id}`), horoscope)
+  async onUpdate(horoscope: Horoscope) {
+    const previous = this.horoscopeUpdated.value;
+    const version = ++this.updateVersion;
+    this.zone.run(() => this.horoscopeUpdated.next({ ...horoscope }));
+    try {
+      await this.source.save(horoscope);
+    } catch (error) {
+      if (version === this.updateVersion) {
+        this.zone.run(() => this.horoscopeUpdated.next(previous));
+      }
+      throw error;
+    }
+  }
+
+  ngOnDestroy() {
+    this.stopListening?.();
   }
 }

@@ -64,4 +64,35 @@ describe('ArticlesService', () => {
     flushReload(articles);
     tick(1500);
   }));
+
+  it('saves repeated moves in order and reloads only after the final save', fakeAsync(() => {
+    service.moveArticle(3, 1, 1).subscribe();
+    const first = http.expectOne(apiUrl + 'reorder/');
+    service.moveArticle(2, 1, 3).subscribe();
+    expect(service.articles[0].map(item => item.id)).toEqual([2, 3, 1]);
+    http.expectNone(apiUrl + 'reorder/');
+
+    first.flush({ status: 'success' });
+    http.expectNone(request => request.url === apiUrl);
+    const second = http.expectOne(apiUrl + 'reorder/');
+    expect(second.request.body).toEqual({ col: 1, order: [2, 3, 1] });
+    second.flush({ status: 'success' });
+    flushReload(service.articles.flat());
+    expect(service.articles[0].map(item => item.id)).toEqual([2, 3, 1]);
+    tick(1500);
+  }));
+
+  it('ignores an older reload that finishes after the latest move', fakeAsync(() => {
+    service.reload();
+    const oldActive = http.expectOne(request => request.url === apiUrl && !request.params.has('archived'));
+    const oldArchived = http.expectOne(request => request.url === apiUrl && request.params.has('archived'));
+    service.moveArticle(3, 1, 1).subscribe();
+    http.expectOne(apiUrl + 'reorder/').flush({ status: 'success' });
+    const saved = service.articles.flat();
+    flushReload(saved);
+    oldActive.flush(articles);
+    oldArchived.flush([]);
+    expect(service.articles[0].map(item => item.id)).toEqual([3, 1, 2]);
+    tick(1500);
+  }));
 });
