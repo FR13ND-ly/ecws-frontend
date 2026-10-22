@@ -29,18 +29,28 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        width: 18px;
+        width: 14px;
         height: 18px;
-        border-radius: 50%;
-        font-size: 14px;
-        font-weight: 700;
+        font-size: 0;
+        font-weight: 600;
         line-height: 1;
-        background-color: #f9a825;
-        color: #212121;
+        color: var(--primary-color);
+
+        &::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            border: 1.5px solid currentColor;
+            border-radius: 50%;
+        }
 
         &--published {
-            background-color: #2e7d32;
-            color: #fff;
+            font-size: 15px;
+            color: var(--accent-color);
+
+            &::before {
+                display: none;
+            }
         }
     }
 }
